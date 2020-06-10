@@ -1,8 +1,8 @@
-const fs = require("fs");
-const request = require("request");
-const { promisify } = require("util");
-
-const config = require("../config/config");
+const fs = require('fs');
+const request = require('request');
+const { promisify } = require('util');
+const fp = require('lodash/fp');
+const config = require('../config/config');
 
 const getAuthToken = require('./getAuthToken');
 const { checkForInternalServiceError } = require('./handleError');
@@ -21,7 +21,8 @@ const createRequestWithDefaults = (Logger) => {
     ...(_configFieldIsValid(key) && { key: fs.readFileSync(key) }),
     ...(_configFieldIsValid(passphrase) && { passphrase }),
     ...(_configFieldIsValid(proxy) && { proxy }),
-    ...(typeof rejectUnauthorized === "boolean" && { rejectUnauthorized })
+    ...(typeof rejectUnauthorized === "boolean" && { rejectUnauthorized }),
+    json: true
   };
 
   const requestWithDefaults = (
@@ -29,7 +30,7 @@ const createRequestWithDefaults = (Logger) => {
     postRequestSuccessFunction = (x) => x,
     postRequestFailureFunction = (e) => { throw e; }
   ) => {
-    const _requestWithDefault = promisify(request.defaults(defaults));
+    const _requestWithDefault = promisify(request.defaults(fp.omit('json')(defaults)));
     return async ({ json: bodyWillBeJSON, ...requestOptions }) => {
       const preRequestFunctionResults = await preRequestFunction(requestOptions);
       const _requestOptions = {
@@ -45,7 +46,7 @@ const createRequestWithDefaults = (Logger) => {
 
         postRequestFunctionResults = await postRequestSuccessFunction({
           ...result,
-          body: bodyWillBeJSON && fp.isString(body) ? JSON.parse(body) : body
+          body: bodyWillBeJSON || defaults.json ? JSON.parse(body) : body
         });
       } catch (error) {
         postRequestFunctionResults = await postRequestFailureFunction(
@@ -59,30 +60,30 @@ const createRequestWithDefaults = (Logger) => {
 
   const handleAuth = async (requestOptions) => {
     const getAuthTokenPromise = promisify((cb) =>
-      getAuthToken(requestOptions.options, requestWithDefaults(), Logger, cb)
+      getAuthToken(requestOptions.options, defaults, Logger, cb)
     ).bind(this);
     
-    const token = await getAuthTokenPromise().catch((error) => {
+    const { token, Cookie } = await getAuthTokenPromise().catch((error) => {
       Logger.error({ error }, 'Unable to retrieve Auth Token');
       throw error;
     });
 
-    Logger.trace({ token }, 'Token');
+    Logger.trace({ token, Cookie }, 'Credentials');
 
     return {
       ...requestOptions,
       headers: {
         ...requestOptions.headers,
-        'x-auth-token': token
+        'x-auth-token': token,
+        Cookie
       }
     };
   };
 
   const checkForStatusError = ({ statusCode, body }, requestOptions) => {
     checkForInternalServiceError(statusCode, body);
-    const roundedStatus = Math.round(statusCode / 100) * 100;
-    if (![200,300].includes(roundedStatus)) {
-      const requestError = Error("Request Error");
+    if (Math.round(statusCode / 100) * 100 !== 200) {
+      const requestError = Error('Request Error');
       requestError.status = statusCode;
       requestError.description = body;
       requestError.requestOptions = requestOptions;

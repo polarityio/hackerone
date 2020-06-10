@@ -4,10 +4,7 @@ const {
   splitOutIgnoredIps,
   groupEntities
 } = require('./dataTransformations');
-
-const getIocDetails = require('./getIocDetails');
-const getAssets = require('./getAssets');
-const getEvents = require('./getEvents');
+const { getScopes } = require('./queries/scopes')
 const createLookupResults = require('./createLookupResults');
 
 const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
@@ -17,18 +14,16 @@ const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
         _entitiesPartition
       );
       const entityGroups = groupEntities(entitiesPartition, options);
+      
+      const scopes = await getScopes(
+        entities[0],
+        options.programsToSearch[0],
+        options,
+        requestWithDefaults,
+        Logger
+      );
 
-      try {
-        const asdf = await requestWithDefaults({
-          url: `https://jsonplaceholder.typicode.com/todos/1`,
-          method: "GET",
-          options,
-          json: true
-        });
-        Logger.trace({ asdf}, "FFFFFFF")
-      } catch (e) {
-        Logger.trace({e}, "ASDKFJLSKDJF")
-      } 
+      Logger.trace({scopes}, "WORKING?")
 
       return [];
     },
