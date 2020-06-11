@@ -45,7 +45,10 @@ const splitOutIgnoredIps = (_entitiesPartition) => {
 
   return {
     entitiesPartition,
-    ignoredIpLookupResults: _.map(ignoredIPs, (entity) => ({ entity, data: null }))
+    ignoredIpLookupResults: _.map(ignoredIPs, (entity) => ({
+      entity,
+      data: null
+    }))
   };
 };
 

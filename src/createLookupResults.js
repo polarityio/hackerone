@@ -1,59 +1,38 @@
-const _ = require('lodash');
+const fp = require('lodash/fp');
 
-const createLookupResults = (options, entityGroups, iocDetailsMap, assetsMap, eventsMap) =>
-  _.flatMap(entityGroups, (entityGroup, entityType) =>
-    _.map(entityGroup, (entity) => {
-      const iocDetails = iocDetailsMap[entity.value];
-      const assets = assetsMap[entity.value];
-      const events = eventsMap[entity.value];
+const createLookupResults = (options, entities, scopesMap) =>
+  fp.map((entity) => {
+    const scopes = scopesMap[entity.value];
 
-      const iocDetailsResultsFound =
-        iocDetails && iocDetails.iocSources && iocDetails.iocSources.length;
-      const assetResultsFound = assets && assets.assets && assets.assets.length;
-      const eventResultsFound = events && events.events && events.events.length;
+    const scopesResultsFound = fp.some(fp.map(fp.size))(scopes);
 
-      const resultsFound =
-        (!options.ignoreAssetResults && assetResultsFound) ||
-        iocDetailsResultsFound ||
-        eventResultsFound;
+    const resultsFound = scopesResultsFound;
 
-      return {
-        entity,
-        data: !resultsFound
-          ? null
-          : {
-              summary: _createSummary(iocDetails, assets, events),
-              details: {
-                ...iocDetails,
-                ...assets,
-                ...events
-              }
+    return {
+      entity,
+      data: !resultsFound
+        ? null
+        : {
+            summary: _createSummary(scopes),
+            details: {
+              programsToSearch: options.programsToSearch,
+              scopes
             }
-      };
-    })
-  );
+          }
+    };
+  })(entities);
 
-const _createSummary = (iocDetails, assets, events) => {
-  const iocDetailsTags =
-    iocDetails &&
-    iocDetails.iocSources &&
-    _.compact([
-      iocDetails.iocSources[0].confidenceScore &&
-        `Confidence: ${iocDetails.iocSources[0].confidenceScore}`,
-      iocDetails.iocSources[0].category &&
-        `Category: ${iocDetails.iocSources[0].category}`,
-      iocDetails.iocSources[0].category &&
-        `Severity: ${iocDetails.iocSources[0].rawSeverity}`,
-      `# of IOC: ${iocDetails.iocSources.length}`
-    ]);
+const _createSummary = (scopes) => {
+  const scopesTags = [
+    fp.flow(
+      fp.values,
+      fp.some(fp.get('eligible_for_submission'))
+    )(scopes)
+      ? 'In Scope'
+      : 'Out of Scope'
+  ];
 
-  const assetsTags = assets && assets.assets && `# of Assets: ${assets.assets.length}`;
-  const eventsTags = events && events.events && `# of Events: ${events.events.length}`;
-
-  return _.chain([iocDetailsTags, assetsTags, eventsTags])
-    .flatten()
-    .compact()
-    .value();
+  return fp.flow(fp.flatten, fp.compact)([scopesTags]);
 };
 
 module.exports = createLookupResults;

@@ -1,0 +1,17 @@
+<ul class="nav nav-tabs">
+  {{#each programsToSearch as |program|}}
+    <li class="nav-item">
+      <a {{action "changeTab" "{{program}}"}} class="nav-link {{if (or (eq activeTab "{{program}}")(not activeTab)) "active"}}" href="#">
+        {{program}}
+      </a>
+    </li>
+  {{/each}}
+</ul>
+
+{{#each programsToSearch as |program|}}
+  {{#if (eq activeTab "{{program}}")}}
+    {{#each details.scopes.[program] as |scope|}}
+      {{scope.id}}
+    {{/each}}
+  {{/if}}
+{{/each}}
