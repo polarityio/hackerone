@@ -1,18 +1,8 @@
 const fp = require('lodash/fp');
+const moment = require('moment');
 const { getScopesQuery } = require('./queries/scopes');
 const { _P } = require('./dataTransformations');
 
-const aggregateEntityProgramScopes = (entities, programName, entityProgramAgg, scopes) =>
-  fp.reduce(
-    (agg, entity) => ({
-      ...agg,
-      [entity.value]: {
-        ...fp.getOr({}, entity.value)(entityProgramAgg),
-        [programName]: scopes[entity.value] || []
-      }
-    }),
-    {}
-  )(entities);
 
 const getScopes = (entities, options, requestWithDefaults, Logger) =>
   _P.reduce(
@@ -40,5 +30,19 @@ const getScopes = (entities, options, requestWithDefaults, Logger) =>
     {}
   );
 
-//aggregateEntityProgramScopes
+const aggregateEntityProgramScopes = (entities, programName, entityProgramAgg, scopes) =>
+  fp.reduce(
+    (agg, entity) => ({
+      ...agg,
+      [entity.value]: {
+        ...fp.getOr({}, entity.value)(entityProgramAgg),
+        [programName]: (scopes[entity.value] || []).map(({ created_at, ...scopes }) => ({
+          ...scopes,
+          created_at: moment(created_at).format('MMM D YY, h:mm A')
+        }))
+      }
+    }),
+    {}
+  )(entities);
+
 module.exports = getScopes;

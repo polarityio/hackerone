@@ -1,7 +1,7 @@
 <ul class="nav nav-tabs">
   {{#each programsToSearch as |program|}}
     <li class="nav-item">
-      <a {{action "changeTab" "{{program}}"}} class="nav-link {{if (or (eq activeTab "{{program}}")(not activeTab)) "active"}}" href="#">
+      <a {{action "changeTab" program}} class="nav-link {{if (or (eq activeTab program)(not activeTab)) "active"}}" href="#">
         {{program}}
       </a>
     </li>
@@ -9,9 +9,63 @@
 </ul>
 
 {{#each programsToSearch as |program|}}
-  {{#if (eq activeTab "{{program}}")}}
-    {{#each details.scopes.[program] as |scope|}}
-      {{scope.id}}
+  {{#if (eq activeTab program)}}
+    <div class="p-title">
+      <a class="p-link" href="https://hackerone.com/{{program}}">
+        View Program in HackerOne
+        {{fa-icon "external-link-square" class="external-link-icon"}}
+      </a>
+    </div>
+
+    {{#if (get details.scopes program)}}
+      <div class="p-title">
+        {{fa-icon "info-circle" class="info-circle"}} Scopes
+      </div>
+    {{/if}}
+    {{#each (get details.scopes program) as | scope index |}}
+      {{!-- Implement Dropdowns Later --}}
+      {{#if (gt index 0)}}
+        <hr />
+      {{/if}}
+      {{#if scope.asset_identifier}}
+        <div>
+          <span class="p-key">Asset: </span>
+          <span class="p-value">{{scope.asset_identifier}}</span>
+        </div>
+      {{/if}}
+      {{#if scope.asset_type}}
+        <div>
+          <span class="p-key">Type: </span>
+          <span class="p-value">{{scope.asset_type}}</span>
+        </div>
+      {{/if}}
+      {{#if scope.created_at}}
+        <div>
+          <span class="p-key">Created At: </span>
+          <span class="p-value">{{scope.created_at}}</span>
+        </div>
+      {{/if}}
+      <div>
+        <span class="p-key">Eligible For Bounty: </span>
+        <span class="p-value">{{scope.eligible_for_bounty}}</span>
+      </div>
+      <div>
+        <span class="p-key">Eligible For Submission / In Scope: </span>
+        <span class="p-value">{{scope.eligible_for_submission}}</span>
+      </div>
+      {{#if scope.instruction}}
+        <div>
+          <span class="p-key">Instruction: </span>
+          <span class="p-value">{{scope.instruction}}</span>
+        </div>
+      {{/if}}
+      {{#if scope.max_severity}}
+        <div>
+          <span class="p-key">Max Severity: </span>
+          <span class="p-value">{{scope.max_severity}}</span>
+        </div>
+      {{/if}}
     {{/each}}
   {{/if}}
 {{/each}}
+
