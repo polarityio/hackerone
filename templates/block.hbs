@@ -12,7 +12,7 @@
   {{#if (eq activeTab program)}}
     <div class="p-title">
       <a class="p-link" href="https://hackerone.com/{{program}}">
-        View Program in HackerOne
+        View {{program}} program in HackerOne
         {{fa-icon "external-link-square" class="external-link-icon"}}
       </a>
     </div>
@@ -66,6 +66,47 @@
         </div>
       {{/if}}
     {{/each}}
+
+    {{#if (get details.cwes program)}}
+      <div class="p-title">
+        {{fa-icon "info-circle" class="info-circle"}} CWEs
+      </div>
+    {{/if}}
+    {{#each (get details.cwes program) as | cwe index |}}
+      {{!-- Implement Dropdowns Later --}}
+      {{#if (gt index 0)}}
+        <hr />
+      {{/if}}
+      {{#if cwe.id}}
+        <div>
+          <span class="p-key">CWE ID: </span>
+          <span class="p-value">{{{cwe.id}}}</span>
+        </div>
+      {{/if}}
+      {{#if cwe.lowSeverity}}
+        <div>
+          <span class="p-key">Severity (Low): </span>
+          <span class="p-value">{{cwe.lowSeverity}}</span>
+        </div>
+      {{/if}}
+      {{#if cwe.highSeverity}}
+        <div>
+          <span class="p-key">Severity (High): </span>
+          <span class="p-value">{{cwe.highSeverity}}</span>
+        </div>
+      {{/if}}
+      {{#if cwe.commonWeaknessEnumeration}}
+        <div>
+          <span class="p-key">Common Weakness Enumeration: </span>
+          <span class="p-value">{{cwe.commonWeaknessEnumeration}}</span>
+        </div>
+      {{/if}}
+      {{#if cwe.bugExamples}}
+        <div>
+          <span class="p-key">Bug Examples: </span>
+          <span class="p-value">{{cwe.bugExamples}}</span>
+        </div>
+      {{/if}}
+    {{/each}}
   {{/if}}
 {{/each}}
-

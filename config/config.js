@@ -3,6 +3,12 @@ module.exports = {
   acronym: 'H1',
   description: 'TODO',
   entityTypes: ['IPv4', 'IPv6', 'hash', 'domain', 'email'],
+  customTypes: [
+    {
+      key: 'cwe',
+      regex: /CWE-[0-9]{1,}/
+    },
+  ],
   styles: ['./styles/styles.less'],
   onDemandOnly: true,
   block: {

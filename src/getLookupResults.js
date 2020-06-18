@@ -3,7 +3,7 @@ const {
   partitionFlatMap,
   splitOutIgnoredIps
 } = require('./dataTransformations');
-const getScopes = require('./getScopes')
+const getTeamData = require('./getTeamData')
 const createLookupResults = require('./createLookupResults');
 
 const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
@@ -13,13 +13,21 @@ const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
         _entitiesPartition
       );
 
-      const { scopes } = await _P.parallel({
-        scopes: getScopes(entitiesPartition, options, requestWithDefaults, Logger)
+      const {
+        teamData: { scopes, cwes, reports }
+      } = await _P.parallel({
+        teamData: getTeamData(entitiesPartition, options, requestWithDefaults, Logger)
       });
 
-      const lookupResults = createLookupResults(options, entitiesPartition, scopes);
+      const lookupResults = createLookupResults(
+        options,
+        entitiesPartition,
+        scopes,
+        cwes,
+        reports
+      );
 
-      Logger.trace({ scopes, lookupResults }, 'Query Results');
+      Logger.trace({ scopes, cwes, reports, lookupResults }, 'Query Results');
 
       return lookupResults.concat(ignoredIpLookupResults);
     },

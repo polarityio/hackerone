@@ -1,6 +1,9 @@
 const _ = require("lodash");
 const Aigle = require("aigle");
 const moment = require('moment');
+var {
+  Extractor: { extractTable }
+} = require('markdown-tables-to-json');
 
 const { IGNORED_IPS } = require('./constants');
 
@@ -67,11 +70,29 @@ const generateTimes = ({ monthsBack }, queryingEvents = false) => {
   };
 };
 
+const extractMarkdownTable = (cweTableString) => {
+  const [cweTableHeaders, ...cweTableBody] = extractTable(cweTableString) || [[], []];
+
+  const cweTable = cweTableBody.reduce(
+    (agg, cweRow) => [
+      ...agg,
+      cweTableHeaders.reduce(
+        (agg, cweHeader, index) => ({ ...agg, [cweHeader]: cweRow[index] }),
+        {}
+      )
+    ],
+    []
+  );
+
+  return cweTable;
+};
+
 module.exports = {
   _P,
   partitionFlatMap,
   getKeys,
   groupEntities,
   splitOutIgnoredIps,
-  generateTimes
+  generateTimes,
+  extractMarkdownTable
 };
