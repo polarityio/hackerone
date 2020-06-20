@@ -14,7 +14,7 @@ const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
       );
 
       const {
-        teamData: { scopes, cwes, reports }
+        teamData: { scopes, cwes, reports, reporters }
       } = await _P.parallel({
         teamData: getTeamData(entitiesPartition, options, requestWithDefaults, Logger)
       });
@@ -24,10 +24,11 @@ const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
         entitiesPartition,
         scopes,
         cwes,
-        reports
+        reports,
+        reporters
       );
 
-      Logger.trace({ scopes, cwes, reports, lookupResults }, 'Query Results');
+      Logger.trace({ scopes, cwes, reports, reporters, lookupResults }, 'Query Results');
 
       return lookupResults.concat(ignoredIpLookupResults);
     },

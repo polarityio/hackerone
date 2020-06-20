@@ -24,9 +24,10 @@ const GET_ALL_REPORTS_QUERY = `
       jira_escalation_state
       substate
       created_at
+      url
       reporter{
         id
-        profile_picture(size: large)
+        profile_picture(size: medium)
         name
         username
         rank

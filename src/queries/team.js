@@ -33,7 +33,7 @@ const getTeamQuery = async (
   return {
     scopes: formatScopesResponse(entitiesWithIds, body, Logger),
     cwes: formatCweResponse(entitiesWithIds, body, Logger),
-    reports: formatReportsReponse(entitiesWithIds, body, Logger)
+    ...formatReportsReponse(entitiesWithIds, body, Logger)
   };
 };
 
@@ -110,7 +110,8 @@ const formatCweResponse = (entities, body, Logger) => {
   const cweTable = extractMarkdownTable(cweTableString);
   
   const fromattedCWEs = cweTable.map((cwe) => ({
-    id: cwe['CWE-ID'],
+    id: cwe['CWE-ID'].replace(/<.+?>/g, ''),
+    link: cwe['CWE-ID'],
     lowSeverity: cwe['Severity (low)'],
     highSeverity: cwe['Severity (high)'],
     commonWeaknessEnumeration: cwe['Common Weakness Enumeration'],
@@ -166,39 +167,35 @@ const formatReportsReponse = (entities, body, Logger) =>
         return entitiesForThisReport.length
           ? {
               ...reportsAgg,
-              ...reduce(
-                (entityAgg, entityForThisReport) => ({
-                  ...entityAgg,
-                  [entityForThisReport]: [
-                    ...fp.getOr([], `reports["${entityForThisReport}"]`)(reportsAgg),
-                    report
-                  ]
-                }),
-                {}
-              )(entitiesForThisReport)
-              // reports: reduce(
-              //   (entityAgg, entityForThisReport) => ({
-              //     ...entityAgg,
-              //     [entityForThisReport]: [
-              //       ...fp.getOr([], `reports["${entityForThisReport}"]`)(reportsAgg),
-              //       report
-              //     ]
-              //   }),
-              //   {}
-              // )(entitiesForThisReport),
-              // reporters: reduce(
-              //   (entityAgg, entityForThisReport) => ({
-              //     ...entityAgg,
-              //     [entityForThisReport]: fp.uniqBy('id')([
-              //       ...fp.getOr([], `reporters["${entityForThisReport}"]`)(reportsAgg),
-              //       report.reporter
-              //     ])
-              //   }),
-              //   {}
-              // )(entitiesForThisReport)
+              reports: {
+                ...reportsAgg.reports,
+                ...reduce(
+                  (entityAgg, entityForThisReport) => ({
+                    ...entityAgg,
+                    [entityForThisReport]: [
+                      ...fp.getOr([], `reports["${entityForThisReport}"]`)(reportsAgg),
+                      report
+                    ]
+                  }),
+                  {}
+                )(entitiesForThisReport)
+              },
+              reporters: {
+                ...reportsAgg.reporters,
+                ...reduce(
+                  (entityAgg, entityForThisReport) => ({
+                    ...entityAgg,
+                    [entityForThisReport]: fp.uniqBy('id')([
+                      ...fp.getOr([], `reporters["${entityForThisReport}"]`)(reportsAgg),
+                      report.reporter
+                    ])
+                  }),
+                  {}
+                )(entitiesForThisReport)
+              }
             }
           : reportsAgg;
-      }, {})(reports)
+      }, { reports: {}, reporters: {} })(reports)
     })
   )(body);
 

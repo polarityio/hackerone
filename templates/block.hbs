@@ -1,10 +1,12 @@
 <ul class="nav nav-tabs">
   {{#each programsToSearch as |program|}}
-    <li class="nav-item">
-      <a {{action "changeTab" program}} class="nav-link {{if (or (eq activeTab program)(not activeTab)) "active"}}" href="#">
-        {{program}}
-      </a>
-    </li>
+    {{#if (get programHasResultsMap program)}}
+      <li class="nav-item">
+        <a {{action "changeTab" program}} class="nav-link {{if (or (eq activeTab program)(not activeTab)) "active"}}" href="#">
+          {{program}}
+        </a>
+      </li>
+    {{/if}}
   {{/each}}
 </ul>
 
@@ -23,90 +25,452 @@
       </div>
     {{/if}}
     {{#each (get details.scopes program) as | scope index |}}
-      {{!-- Implement Dropdowns Later --}}
-      {{#if (gt index 0)}}
-        <hr />
-      {{/if}}
-      {{#if scope.asset_identifier}}
-        <div>
-          <span class="p-key">Asset: </span>
-          <span class="p-value">{{scope.asset_identifier}}</span>
-        </div>
-      {{/if}}
-      {{#if scope.asset_type}}
-        <div>
-          <span class="p-key">Type: </span>
-          <span class="p-value">{{scope.asset_type}}</span>
-        </div>
-      {{/if}}
-      {{#if scope.created_at}}
-        <div>
-          <span class="p-key">Created At: </span>
-          <span class="p-value">{{scope.created_at}}</span>
-        </div>
-      {{/if}}
-      <div>
-        <span class="p-key">Eligible For Bounty: </span>
-        <span class="p-value">{{scope.eligible_for_bounty}}</span>
+      <div class="item">  
+        {{#if (get (get (get dropdownExpanded program) "scopes") index)}}
+          <a
+            href="#"
+            class="dropdown"
+            {{on "click" (action "toggleExpand" program "scopes" index)}}
+          >
+            <span class="text"><span class="desc">Asset ID: </span>{{scope.asset_identifier}}</span> {{fa-icon "angle-up"}}
+          </a>
+          {{#if scope.asset_type}}
+            <div>
+              <span class="p-key">Type: </span>
+              <span class="p-value">{{scope.asset_type}}</span>
+            </div>
+          {{/if}}
+          {{#if scope.created_at}}
+            <div>
+              <span class="p-key">Created At: </span>
+              <span class="p-value">{{scope.created_at}}</span>
+            </div>
+          {{/if}}
+          <div>
+            <span class="p-key">Eligible For Bounty: </span>
+            <span class="p-value">{{scope.eligible_for_bounty}}</span>
+          </div>
+          <div>
+            <span class="p-key">Eligible For Submission / In Scope: </span>
+            <span class="p-value">{{scope.eligible_for_submission}}</span>
+          </div>
+          {{#if scope.instruction}}
+            <div>
+              <span class="p-key">Instruction: </span>
+              <span class="p-value">{{scope.instruction}}</span>
+            </div>
+          {{/if}}
+          {{#if scope.max_severity}}
+            <div>
+              <span class="p-key">Max Severity: </span>
+              <span class="p-value">{{scope.max_severity}}</span>
+            </div>
+          {{/if}}
+        {{else}}
+          <a
+            href="#"
+            class="dropdown"
+            {{on "click" (action "toggleExpand" program "scopes" index)}}
+          >
+            <span class="text">{{scope.asset_identifier}}</span> {{fa-icon "angle-down"}}
+          </a>
+        {{/if}}
       </div>
-      <div>
-        <span class="p-key">Eligible For Submission / In Scope: </span>
-        <span class="p-value">{{scope.eligible_for_submission}}</span>
-      </div>
-      {{#if scope.instruction}}
-        <div>
-          <span class="p-key">Instruction: </span>
-          <span class="p-value">{{scope.instruction}}</span>
-        </div>
-      {{/if}}
-      {{#if scope.max_severity}}
-        <div>
-          <span class="p-key">Max Severity: </span>
-          <span class="p-value">{{scope.max_severity}}</span>
-        </div>
-      {{/if}}
     {{/each}}
 
+    {{#if (get details.scopes program)}}
+      <hr />
+    {{/if}}
     {{#if (get details.cwes program)}}
       <div class="p-title">
         {{fa-icon "info-circle" class="info-circle"}} CWEs
       </div>
     {{/if}}
     {{#each (get details.cwes program) as | cwe index |}}
-      {{!-- Implement Dropdowns Later --}}
-      {{#if (gt index 0)}}
-        <hr />
-      {{/if}}
-      {{#if cwe.id}}
-        <div>
-          <span class="p-key">CWE ID: </span>
-          <span class="p-value">{{{cwe.id}}}</span>
-        </div>
-      {{/if}}
-      {{#if cwe.lowSeverity}}
-        <div>
-          <span class="p-key">Severity (Low): </span>
-          <span class="p-value">{{cwe.lowSeverity}}</span>
-        </div>
-      {{/if}}
-      {{#if cwe.highSeverity}}
-        <div>
-          <span class="p-key">Severity (High): </span>
-          <span class="p-value">{{cwe.highSeverity}}</span>
-        </div>
-      {{/if}}
-      {{#if cwe.commonWeaknessEnumeration}}
-        <div>
-          <span class="p-key">Common Weakness Enumeration: </span>
-          <span class="p-value">{{cwe.commonWeaknessEnumeration}}</span>
-        </div>
-      {{/if}}
-      {{#if cwe.bugExamples}}
-        <div>
-          <span class="p-key">Bug Examples: </span>
-          <span class="p-value">{{cwe.bugExamples}}</span>
-        </div>
-      {{/if}}
+      <div class="item">  
+        {{#if (get (get (get dropdownExpanded program) "cwes") index)}}
+          <a
+            href="#"
+            class="dropdown"
+            {{on "click" (action "toggleExpand" program "cwes" index)}}
+          >
+            <span class="text"><span class="desc">CWE ID: </span>{{cwe.id}}</span> {{fa-icon "angle-up"}}
+          </a>
+          <div>
+            <span class="p-key">More Info: </span>
+            <span class="p-value">{{{cwe.link}}}</span>
+          </div>
+          {{#if cwe.lowSeverity}}
+            <div>
+              <span class="p-key">Severity (Low): </span>
+              <span class="p-value">{{cwe.lowSeverity}}</span>
+            </div>
+          {{/if}}
+          {{#if cwe.highSeverity}}
+            <div>
+              <span class="p-key">Severity (High): </span>
+              <span class="p-value">{{cwe.highSeverity}}</span>
+            </div>
+          {{/if}}
+          {{#if cwe.commonWeaknessEnumeration}}
+            <div>
+              <span class="p-key">Common Weakness Enumeration: </span>
+              <span class="p-value">{{cwe.commonWeaknessEnumeration}}</span>
+            </div>
+          {{/if}}
+          {{#if cwe.bugExamples}}
+            <div>
+              <span class="p-key">Bug Examples: </span>
+              <span class="p-value">{{cwe.bugExamples}}</span>
+            </div>
+          {{/if}}
+        {{else}}
+          <a
+            href="#"
+            class="dropdown"
+            {{on "click" (action "toggleExpand" program "cwes" index)}}
+          >
+            <span class="text">{{cwe.id}}</span> {{fa-icon "angle-down"}}
+          </a>
+        {{/if}}
+      </div>
+    {{/each}}
+
+    {{#if (get details.cwes program)}}
+      <hr />
+    {{/if}}
+    {{#if (get details.reports program)}}
+      <div class="p-title">
+        {{fa-icon "info-circle" class="info-circle"}} Reports
+      </div>
+    {{/if}}
+    {{#each (get details.reports program) as | report index |}}
+      <div class="item">  
+        {{#if (get (get (get dropdownExpanded program) "reports") index)}}
+          <a
+            href="#"
+            class="dropdown"
+            {{on "click" (action "toggleExpand" program "reports" index)}}
+          >
+            <span class="text"><span class="desc">Title: </span>{{report.title}}</span> {{fa-icon "angle-up"}}
+          </a>
+          <div class="p-title">
+            <a class="p-link" href="{{report.url}}">
+              View Report in HackerOne {{fa-icon "external-link-square"}}
+            </a>
+          </div>
+          {{#if report.vulnerability_information}}
+            <div>
+              <span class="p-value">Vulnerability Info: </span>
+              <div class="textBlock">{{{report.vulnerability_information}}}</div>
+            </div>
+          {{/if}}
+          {{#if report.jira_escalation_state}}
+            <div>
+              <span class="p-key">Jira Escalation State: </span>
+              <span class="p-value">{{report.jira_escalation_state}}</span>
+            </div>
+          {{/if}}
+          {{#if report.substate}}
+            <div>
+              <span class="p-key">Substate: </span>
+              <span class="p-value">{{report.substate}}</span>
+            </div>
+          {{/if}}
+          {{#if report.created_at}}
+            <div>
+              <span class="p-key">Created At: </span>
+              <span class="p-value">{{report.created_at}}</span>
+            </div>
+          {{/if}}
+          {{#if report.reporter}}
+            {{#if report.reporter.name}}
+              <div>
+                <span class="p-key">Reporter Name: </span>
+                <span class="p-value">{{report.reporter.name}}</span>
+              </div>
+            {{/if}}
+            {{#if report.reporter.username}}
+              <div>
+                <span class="p-key">Reporter Username: </span>
+                <span class="p-value">{{report.reporter.username}}</span>
+              </div>
+            {{/if}}
+          {{/if}}
+          {{#if report.weakness}}
+            {{#if report.weakness.name}}
+              <div>
+                <span class="p-key">Weakness Name: </span>
+                <span class="p-value">{{report.weakness.name}}</span>
+              </div>
+            {{/if}}
+            {{#if report.weakness.external_id}}
+              <div>
+                <span class="p-key">Weakness ID: </span>
+                <span class="p-value">{{report.weakness.external_id}}</span>
+              </div>
+            {{/if}}
+            {{#if report.weakness.description}}
+              <div>
+                <span class="p-value">Weakness Description: </span>
+                <div class="textBlock">{{{report.weakness.description}}}</div>
+              </div>
+            {{/if}}
+          {{/if}}
+          {{#if (and report.triage_meta report.triage_meta.url)}}
+              <div>
+                <span class="p-key">Triage URL: </span>
+                <span class="p-value">{{report.triage_meta.url}}</span>
+              </div>
+          {{/if}}
+          {{#if report.structured_scope}}
+            {{#if report.structured_scope.asset_identifier}}
+              <div>
+                <span class="p-key">Scope Asset ID: </span>
+                <span class="p-value">{{report.structured_scope.asset_identifier}}</span>
+              </div>
+            {{/if}}
+            {{#if report.structured_scope.asset_type}}
+              <div>
+                <span class="p-key">Scope Asset Type: </span>
+                <span class="p-value">{{report.structured_scope.asset_type}}</span>
+              </div>
+            {{/if}}
+            <div>
+              <span class="p-key">Scope Eligible For Bounty: </span>
+              <span class="p-value">{{report.structured_scope.eligible_for_bounty}}</span>
+            </div>
+            <div>
+              <span class="p-key">Scope Eligible For Submission / In Scope: </span>
+              <span class="p-value">{{report.structured_scope.eligible_for_submission}}</span>
+            </div>
+            {{#if report.structured_scope.max_severity}}
+              <div>
+                <span class="p-key">Scope Max Severity: </span>
+                <span class="p-value">{{report.structured_scope.max_severity}}</span>
+              </div>
+            {{/if}}
+            {{#if report.structured_scope.instruction}}
+              <div>
+                <span class="p-key">Scope Instructions: </span>
+                <span class="p-value">{{report.structured_scope.instruction}}</span>
+              </div>
+            {{/if}}
+          {{/if}}
+
+          {{#if report.severity}}
+            {{#if report.severity.author_type}}
+              <div>
+                <span class="p-key">Severity Author Type: </span>
+                <span class="p-value">{{report.severity.author_type}}</span>
+              </div>
+            {{/if}}
+            {{#if report.severity.attack_complexity}}
+              <div>
+                <span class="p-key">Severity Attack Complexity: </span>
+                <span class="p-value">{{report.severity.attack_complexity}}</span>
+              </div>
+            {{/if}}
+            {{#if report.severity.attack_vector}}
+              <div>
+                <span class="p-key">Severity Attack Vector: </span>
+                <span class="p-value">{{report.severity.attack_vector}}</span>
+              </div>
+            {{/if}}
+            {{#if report.severity.availability}}
+              <div>
+                <span class="p-key">Severity Availability: </span>
+                <span class="p-value">{{report.severity.availability}}</span>
+              </div>
+            {{/if}}
+            {{#if report.severity.confidentiality}}
+              <div>
+                <span class="p-key">Severity Confidentiality: </span>
+                <span class="p-value">{{report.severity.confidentiality}}</span>
+              </div>
+            {{/if}}
+            {{#if report.severity.rating}}
+              <div>
+                <span class="p-key">Severity Rating: </span>
+                <span class="p-value">{{report.severity.rating}}</span>
+              </div>
+            {{/if}}
+            {{#if report.severity.scope}}
+              <div>
+                <span class="p-key">Severity Scope: </span>
+                <span class="p-value">{{report.severity.scope}}</span>
+              </div>
+            {{/if}}
+            {{#if report.severity.score}}
+              <div>
+                <span class="p-key">Severity Score: </span>
+                <span class="p-value">{{report.severity.score}}</span>
+              </div>
+            {{/if}}
+          {{/if}}
+          {{#if (and report.custom_field_values.nodes report.custom_field_values.nodes.length)}}
+            <div>
+              <span class="p-key">Custom Values: </span>
+              <span class="p-value">
+                {{#each report.custom_field_values.nodes as | customValues index |}}
+                  {{#if (gt index 0)}}, {{/if}}{{customValues}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if (and report.summaries report.summaries.length)}}
+            {{#each report.summaries as |summary|}}
+              <div class="summary">
+                {{#if summary.content}}
+                  <div>
+                    <span class="p-key">Summary Content: </span>
+                    <span class="p-value">{{summary.content}}</span>
+                  </div>
+                {{/if}}
+                {{#if summary.created_at}}
+                  <div>
+                    <span class="p-key">Summary Created At: </span>
+                    <span class="p-value">{{summary.created_at}}</span>
+                  </div>
+                {{/if}}
+              </div>
+            {{/each}}
+          {{/if}}
+        {{else}}
+          <a
+            href="#"
+            class="dropdown"
+            {{on "click" (action "toggleExpand" program "reports" index)}}
+          >
+            <span class="text">{{report.title}}</span> {{fa-icon "angle-down"}}
+          </a>
+        {{/if}}
+      </div>
+    {{/each}}
+
+    {{#if (get details.reports program)}}
+      <hr />
+    {{/if}}
+    {{#if (get details.reporters program)}}
+      <div class="p-title">
+        {{fa-icon "info-circle" class="info-circle"}} Reporters
+      </div>
+    {{/if}}
+    {{#each (get details.reporters program) as | reporter index |}}
+      <div class="item">  
+        {{#if (get (get (get dropdownExpanded program) "reporters") index)}}
+          <a
+            href="#"
+            class="dropdown"
+            {{on "click" (action "toggleExpand" program "reporters" index)}}
+          >
+            <span class="text">{{reporter.name}}</span> {{fa-icon "angle-up"}}
+          </a>
+          {{#if reporter.profile_picture}}
+            <div>
+              <img class="profilePicture" src={{reporter.profile_picture}} />
+            </div>
+          {{/if}}
+          {{#if reporter.name}}
+            <div>
+              <span class="p-key">Name: </span>
+              <span class="p-value">{{reporter.name}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.username}}
+            <div>
+              <span class="p-key">Username: </span>
+              <span class="p-value">{{reporter.username}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.rank}}
+            <div>
+              <span class="p-key">Rank: </span>
+              <span class="p-value">{{reporter.rank}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.reputation}}
+            <div>
+              <span class="p-key">Reputation: </span>
+              <span class="p-value">{{reporter.reputation}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.bio}}
+            <div>
+              <span class="p-key">Bio: </span>
+              <span class="p-value">{{reporter.bio}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.resolved_report_count}}
+            <div>
+              <span class="p-key">Resolved Report Count: </span>
+              <span class="p-value">{{reporter.resolved_report_count}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.website}}
+            <div>
+              <span class="p-key">Website: </span>
+              <span class="p-value">{{reporter.website}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.location}}
+            <div>
+              <span class="p-key">Location: </span>
+              <span class="p-value">{{reporter.location}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.hackerone_employee}}
+            <div>
+              <span class="p-key">Hackerone Employee: </span>
+              <span class="p-value">{{reporter.hackerone_employee}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.cleared}}
+            <div>
+              <span class="p-key">Cleared: </span>
+              <span class="p-value">{{reporter.cleared}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.bugcrowd_handle}}
+            <div>
+              <span class="p-key">Bugcrowd Handle: </span>
+              <span class="p-value">{{reporter.bugcrowd_handle}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.github_handle}}
+            <div>
+              <span class="p-key">Github Handle: </span>
+              <span class="p-value">{{reporter.github_handle}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.gitlab_handle}}
+            <div>
+              <span class="p-key">Gitlab Handle: </span>
+              <span class="p-value">{{reporter.gitlab_handle}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.linkedin_handle}}
+            <div>
+              <span class="p-key">Linkedin Handle: </span>
+              <span class="p-value">{{reporter.linkedin_handle}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.twitter_handle}}
+            <div>
+              <span class="p-key">Twitter Handle: </span>
+              <span class="p-value">{{reporter.twitter_handle}}</span>
+            </div>
+          {{/if}}
+        {{else}}
+          <a
+            href="#"
+            class="dropdown"
+            {{on "click" (action "toggleExpand" program "reporters" index)}}
+          >
+            <span class="text">{{reporter.name}}</span> {{fa-icon "angle-down"}}
+          </a>
+        {{/if}}
+      </div>
     {{/each}}
   {{/if}}
 {{/each}}

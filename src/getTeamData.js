@@ -15,14 +15,7 @@ const getTeamData = (entities, options, requestWithDefaults, Logger) =>
         requestWithDefaults,
         Logger
       );
-      Logger.trace(
-        {
-          reporters,
-          scopes,
-          reports
-        },
-        'WORKED WITHOUT ERROR'
-      );
+
       return {
         /* Return Scopes Data Structure
          * {
@@ -50,6 +43,12 @@ const getTeamData = (entities, options, requestWithDefaults, Logger) =>
           programName,
           entityProgramAgg,
           reports
+        ),
+        reporters: aggregateEntityProgramReporters(
+          entities,
+          programName,
+          entityProgramAgg,
+          reporters
         )
       };
     },
@@ -79,15 +78,29 @@ const aggregateEntityProgramScopes =
   aggregateEntityProgram('scopes', (scopes) =>
     scopes.map(({ created_at, ...scope }) => ({
       ...scope,
-      created_at: moment(created_at).format('MMM D YY, h:mm A')
+      created_at: moment(created_at).format('MMM D, YY - h:mm A')
     }))
   );
 
 const aggregateEntityProgramCWEs =  
   aggregateEntityProgram('cwes');
 
-const aggregateEntityProgramReports =  
-  aggregateEntityProgram('reports');
+const aggregateEntityProgramReports = aggregateEntityProgram('reports', (reports) =>
+  reports.map(({ weakness, vulnerability_information, ...report }) => ({
+    ...report,
+    vulnerability_information:
+      vulnerability_information &&
+      vulnerability_information.replace(/(\r\n|\n|\r)/gm, '<br/>'),
+    weakness: weakness && {
+      ...weakness,
+      description:
+        weakness.description && weakness.description.replace(/(\r\n|\n|\r)/gm, '<br/>')
+    }
+  }))
+);
+
+const aggregateEntityProgramReporters = 
+  aggregateEntityProgram('reporters');
 
 
 module.exports = getTeamData;
