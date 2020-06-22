@@ -98,7 +98,7 @@
           </a>
           <div>
             <span class="p-key">More Info: </span>
-            <span class="p-value">{{{cwe.link}}}</span>
+            <span class="p-value">{{{cwe.link}}} {{fa-icon "external-link-square"}}</span>
           </div>
           {{#if cwe.lowSeverity}}
             <div>
@@ -390,20 +390,20 @@
               <span class="p-value">{{reporter.reputation}}</span>
             </div>
           {{/if}}
-          {{#if reporter.bio}}
-            <div>
-              <span class="p-key">Bio: </span>
-              <span class="p-value">{{reporter.bio}}</span>
-            </div>
-          {{/if}}
           <div>
             <span class="p-key">Resolved Report Count: </span>
-            <span class="p-value">{{if reporter.resolved_report_count "{{reporter.resolved_report_count}}" "0"}}</span>
+            <span class="p-value">{{if reporter.resolved_report_count reporter.resolved_report_count "0"}}</span>
           </div>
           {{#if reporter.website}}
             <div>
               <span class="p-key">Website: </span>
               <span class="p-value">{{reporter.website}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.bio}}
+            <div>
+              <span class="p-key">Bio: </span>
+              <span class="p-value">{{reporter.bio}}</span>
             </div>
           {{/if}}
           {{#if reporter.location}}
