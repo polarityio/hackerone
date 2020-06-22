@@ -319,20 +319,15 @@
             </div>
           {{/if}}
           {{#if (and report.summaries report.summaries.length)}}
+            <span class="p-value">Summaries: </span>
             {{#each report.summaries as |summary|}}
               <div class="summary">
-                {{#if summary.content}}
-                  <div>
-                    <span class="p-key">Summary Content: </span>
-                    <span class="p-value">{{summary.content}}</span>
+                <div>
+                  <div class="textBlock">
+                    <div class="summaryMeta">> {{summary.user.username}} ({{summary.created_at}}): </div>
+                    {{{summary.content}}}
                   </div>
-                {{/if}}
-                {{#if summary.created_at}}
-                  <div>
-                    <span class="p-key">Summary Created At: </span>
-                    <span class="p-value">{{summary.created_at}}</span>
-                  </div>
-                {{/if}}
+                </div>
               </div>
             {{/each}}
           {{/if}}
@@ -364,7 +359,7 @@
             class="dropdown"
             {{on "click" (action "toggleExpand" program "reporters" index)}}
           >
-            <span class="text">{{reporter.name}}</span> {{fa-icon "angle-up"}}
+            <span class="text username">{{reporter.username}}</span> {{fa-icon "angle-up"}}
           </a>
           {{#if reporter.profile_picture}}
             <div>
@@ -401,12 +396,10 @@
               <span class="p-value">{{reporter.bio}}</span>
             </div>
           {{/if}}
-          {{#if reporter.resolved_report_count}}
-            <div>
-              <span class="p-key">Resolved Report Count: </span>
-              <span class="p-value">{{reporter.resolved_report_count}}</span>
-            </div>
-          {{/if}}
+          <div>
+            <span class="p-key">Resolved Report Count: </span>
+            <span class="p-value">{{if reporter.resolved_report_count "{{reporter.resolved_report_count}}" "0"}}</span>
+          </div>
           {{#if reporter.website}}
             <div>
               <span class="p-key">Website: </span>
@@ -467,7 +460,7 @@
             class="dropdown"
             {{on "click" (action "toggleExpand" program "reporters" index)}}
           >
-            <span class="text">{{reporter.name}}</span> {{fa-icon "angle-down"}}
+            <span class="text username">{{reporter.username}}</span> {{fa-icon "angle-down"}}
           </a>
         {{/if}}
       </div>

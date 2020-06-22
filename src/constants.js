@@ -69,6 +69,10 @@ const GET_ALL_REPORTS_QUERY = `
         created_at
         id
         updated_at
+        user {
+          name
+          username
+        }
       }
       structured_scope {  
         id

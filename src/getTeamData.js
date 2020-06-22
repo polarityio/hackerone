@@ -86,7 +86,7 @@ const aggregateEntityProgramCWEs =
   aggregateEntityProgram('cwes');
 
 const aggregateEntityProgramReports = aggregateEntityProgram('reports', (reports) =>
-  reports.map(({ weakness, vulnerability_information, ...report }) => ({
+  reports.map(({ vulnerability_information, weakness, summaries, ...report }) => ({
     ...report,
     vulnerability_information:
       vulnerability_information &&
@@ -95,12 +95,21 @@ const aggregateEntityProgramReports = aggregateEntityProgram('reports', (reports
       ...weakness,
       description:
         weakness.description && weakness.description.replace(/(\r\n|\n|\r)/gm, '<br/>')
-    }
+    },
+    summaries: summaries.map(({ content, created_at, ...summary }) => ({
+      ...summary,
+      content: content.replace(/(\r\n|\n|\r)/gm, '<br/>'),
+      created_at: moment(created_at).format('MMM D, YY - h:mm A')
+    }))
   }))
 );
 
-const aggregateEntityProgramReporters = 
-  aggregateEntityProgram('reporters');
+const aggregateEntityProgramReporters = aggregateEntityProgram('reporters', (reporters) =>
+  reporters.map(({ profile_picture, ...reporter }) => ({
+    ...reporter,
+    profile_picture: !profile_picture.startsWith("/assets") && profile_picture 
+  }))
+);
 
 
 module.exports = getTeamData;
