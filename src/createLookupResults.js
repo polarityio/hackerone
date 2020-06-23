@@ -32,7 +32,7 @@ const createLookupResults = (options, entities, scopesMap, cweMap, reportsMap, r
     };
   })(entities);
 
-const _createSummary = (entity, scopes, cwes) => {
+const _createSummary = (entity, scopes, cwes, reports, reporters) => {
   const scopesTags = [
     entity.type === 'custom' && entity.types.indexOf('custom.cwe') >= 0
       ? '' : 
@@ -40,8 +40,31 @@ const _createSummary = (entity, scopes, cwes) => {
       ? 'In Scope'
       : 'Out of Scope'
   ];
+  
+  const reportsTags = [
+    fp.some(fp.some(fp.get('valuedVulnerability')))(reports)
+      ? 'Valued Vulnerability Found'
+      : '',
+    fp.some((programReports) =>
+      fp.some(
+        (report) =>
+          fp.filter((_report) => {
+            const reportScopeId = fp.getOr('', 'structured_scope.id')(report);
+            const _reportScopeId = fp.getOr('', 'structured_scope.id')(_report);
+            const reportWeaknessId = fp.getOr('', 'weakness.id')(report);
+            const _reportWeaknessId = fp.getOr('', 'weakness.id')(_report);
+            return (
+              reportScopeId === _reportScopeId || reportWeaknessId === _reportWeaknessId
+            );
+          }, programReports).length > 1,
+        programReports
+      )
+    )
+      ? 'Contains Possibly Duplicate Bugs'
+      : ''
+  ];
 
-  return fp.flow(fp.flatten, fp.compact)([scopesTags]);
+  return fp.flow(fp.flatten, fp.compact)([scopesTags, reportsTags]);
 };
 
 module.exports = createLookupResults;

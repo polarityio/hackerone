@@ -4,22 +4,22 @@ const NodeCache = require('node-cache');
 
 const { extractMarkdownTable } = require('../dataTransformations');
 const { STRUCTURED_SCOPES_EDGES, GET_ALL_REPORTS_QUERY } = require('../constants');
-const cache = new NodeCache({
-  stdTTL: 59 * 60 * 12
-});
 
 const getTeamQuery = async (
   entities,
   programName,
   options,
   requestWithDefaults,
-  Logger
+  Logger,
+  responseCache = new NodeCache({
+    stdTTL: 59 * 60 * 12
+  }),
 ) => {
   const entitiesWithIds = fp.map(
     fp.assign({ id: `a${Math.random().toString(36).slice(2)}` })
   )(entities);
 
-  const query = teamQueryBuilder(entitiesWithIds, programName);
+  const query = teamQueryBuilder(entitiesWithIds, programName, responseCache);
 
   const { body } = await requestWithDefaults({
     url: 'https://hackerone.com/graphql',
@@ -36,12 +36,12 @@ const getTeamQuery = async (
   
   return {
     scopes: formatScopesResponse(entitiesWithIds, body, Logger),
-    cwes: formatCweResponse(entitiesWithIds, programName, body, Logger),
-    ...formatReportsReponse(entitiesWithIds, programName, body, Logger)
+    cwes: formatCweResponse(entitiesWithIds, programName, body, responseCache, Logger),
+    ...formatReportsReponse(entitiesWithIds, programName, body, responseCache, Logger)
   };
 };
 
-const teamQueryBuilder = (entitiesWithIds, programName) =>
+const teamQueryBuilder = (entitiesWithIds, programName, responseCache) =>
   fp.flow(
     fp.reduce(
       (agg, entity) =>
@@ -58,10 +58,10 @@ const teamQueryBuilder = (entitiesWithIds, programName) =>
           team(handle: $handle) {
             id
             handle
-            ${!cache.get(programName) ? 'policy' : ''}
+            ${!responseCache.get(programName) ? 'policy' : ''}
             ${scopeStructureQueries}
           }
-          ${!cache.get(programName) ? GET_ALL_REPORTS_QUERY : ''}
+          ${!responseCache.get(programName) ? GET_ALL_REPORTS_QUERY : ''}
         }
       `
     )
@@ -84,8 +84,8 @@ const formatScopesResponse = (entities, body, Logger) =>
     }, {})
   )(body);
 
-const formatCweResponse = (entities, programName, body, Logger) => {
-  const cachedProgramData = cache.get(programName);
+const formatCweResponse = (entities, programName, body, responseCache, Logger) => {
+  const cachedProgramData = responseCache.get(programName);
   if (!cachedProgramData || !cachedProgramData.cwes) {
     const policy = fp.getOr('', 'data.team.policy', body);
     const getIndex = (str) => {
@@ -97,38 +97,42 @@ const formatCweResponse = (entities, programName, body, Logger) => {
       '|Severity (low)|Severity (high)|CWE-ID|Common Weakness Enumeration|Bug Examples|'
     );
 
-    const endTableIndex = getIndex('### Borderline Out-of-Scope, No Bounty');
+    const endTableIndex = getIndex('### Border');
 
     if (!startTableIndex || !endTableIndex) return {};
 
-    const cweTableString = policy
-      .slice(startTableIndex, endTableIndex)
-      .replace(/\r\n/g, '\n');
-
+    const cweTableString = fp.flow(
+      fp.thru((policy) => policy.slice(startTableIndex, endTableIndex)),
+      fp.replace(/\r\n/g, '\n')
+    )(policy);
+    Logger.trace({ cweTableString, startTableIndex, endTableIndex, policy });
+    if (!cweTableString) return {};
+    
     const cweTable = extractMarkdownTable(cweTableString);
 
     const fromattedCWEs = cweTable.map((cwe) => ({
-      id: cwe['CWE-ID'].replace(/<.+?>/g, ''),
+      id: fp.flow(fp.getOr('', 'CWE-ID'), fp.replace(/<.+?>/g, ''))(cwe),
       link: cwe['CWE-ID'],
       lowSeverity: cwe['Severity (low)'],
       highSeverity: cwe['Severity (high)'],
       commonWeaknessEnumeration: cwe['Common Weakness Enumeration'],
-      bugExamples: cwe['Bug Examples']
+      bugExamples: cwe['Bug Examples'],
+      valuedVulnerability: true
     }));
 
-    cache.set(programName, { ...cachedProgramData, cwes: fromattedCWEs });
+    responseCache.set(programName, { ...cachedProgramData, cwes: fromattedCWEs });
   }
 
-  const cweEntityValues = entities.reduce(
+  const cweEntityValues = fp.reduce(
     (agg, entity) =>
       entity.type === 'custom' && entity.types.indexOf('custom.cwe') >= 0
         ? [...agg, entity.value]
         : agg,
     []
-  );
+  )(entities);
   if (!cweEntityValues || !cweEntityValues.length) return {};
 
-  return cache.get(programName).cwes.reduce((agg, cwe) => {
+  return responseCache.get(programName).cwes.reduce((agg, cwe) => {
     const entityValueForCWE = fp.find((entityValue) => cwe.id.includes(entityValue))(
       cweEntityValues
     );
@@ -142,16 +146,16 @@ const formatCweResponse = (entities, programName, body, Logger) => {
   }, {});
 };
 
-const formatReportsReponse = (entities, programName, body, Logger) =>
+const formatReportsReponse = (entities, programName, body, responseCache, Logger) =>
   fp.flow(
     fp.getOr({}, 'data.reports.nodes'),
     fp.thru((_reports) => {
-      const cachedReports = fp.getOr(false, 'reports')(cache.get(programName));
+      const cachedReports = fp.getOr(false, 'reports')(responseCache.get(programName));
       const reports = cachedReports || _reports;
       Logger.trace({ programName, reports }, 'Reports By Program');
       if (!cachedReports)
-        cache.set(programName, {
-          ...cache.get(programName),
+        responseCache.set(programName, {
+          ...responseCache.get(programName),
           reports
         });
 

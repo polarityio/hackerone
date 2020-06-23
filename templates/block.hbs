@@ -171,6 +171,20 @@
               <span class="p-value">{{report.jira_escalation_state}}</span>
             </div>
           {{/if}}
+          {{#if report.state}}
+            <div>
+              <span class="p-key">State: </span>
+              <span class="p-value">{{report.state}}</span>
+            </div>
+          {{/if}}
+          <div>
+            <span class="p-key">Visibility: </span>
+            <span class="p-value">{{if report.hacker_published "Public" "Private"}}</span>
+          </div>
+          <div>
+            <span class="p-key">Severity Is Set: </span>
+            <span class="p-value">{{report.severityIsSet}}</span>
+          </div>
           {{#if report.substate}}
             <div>
               <span class="p-key">Substate: </span>
@@ -181,6 +195,28 @@
             <div>
               <span class="p-key">Created At: </span>
               <span class="p-value">{{report.created_at}}</span>
+            </div>
+          {{/if}}
+          {{#if report.closed_ad}}
+            <div>
+              <span class="p-key">Closed At: </span>
+              <span class="p-value">{{report.closed_ad}}</span>
+            </div>
+          {{/if}}
+          {{#if report.latest_activity_at}}
+            <div>
+              <span class="p-key">Latest Activity At: </span>
+              <span class="p-value">{{report.latest_activity_at}}</span>
+            </div>
+          {{/if}}
+          <div>
+            <span class="p-key">Latest Public Activity: </span>
+            <span class="p-value">{{if report.latest_public_activity_at report.latest_public_activity_at "false"}}</span>
+          </div>
+          {{#if report.bug_reporter_agreed_on_going_public_at}}
+            <div>
+              <span class="p-key">Reporter Going Public At: </span>
+              <span class="p-value">{{report.bug_reporter_agreed_on_going_public_at}}</span>
             </div>
           {{/if}}
           {{#if report.reporter}}
@@ -210,6 +246,10 @@
                 <span class="p-value">{{report.weakness.external_id}}</span>
               </div>
             {{/if}}
+            <div>
+              <span class="p-key">Valued Vulnerability: </span>
+              <span class="p-value">{{report.weakness.valuedVulnerability}}</span>
+            </div>
             {{#if report.weakness.description}}
               <div>
                 <span class="p-value">Weakness Description: </span>

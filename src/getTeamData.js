@@ -2,7 +2,10 @@ const fp = require('lodash/fp');
 const moment = require('moment');
 const { getTeamQuery } = require('./queries/team');
 const { _P } = require('./dataTransformations');
-
+const NodeCache = require('node-cache');
+const responseCache = new NodeCache({
+  stdTTL: 59 * 60 * 12
+});
 
 const getTeamData = (entities, options, requestWithDefaults, Logger) =>
   _P.reduce(
@@ -13,15 +16,24 @@ const getTeamData = (entities, options, requestWithDefaults, Logger) =>
         programName,
         options,
         requestWithDefaults,
-        Logger
+        Logger,
+        responseCache
       );
 
+      const allCweIds = fp.flow(
+        fp.getOr([], 'cwes'),
+        fp.map(({ id }) => id.toLowerCase())
+      )(responseCache.get(programName));
+
       return {
-        /* Return Scopes Data Structure
+        /* Return Data Structure
          * {
          *   [entityValue]: {
          *     [programName]: [
          *       scopes
+         *       cwes
+         *       reports
+         *       reporters
          *     ]
          *   }
          * }
@@ -32,13 +44,8 @@ const getTeamData = (entities, options, requestWithDefaults, Logger) =>
           entityProgramAgg,
           scopes
         ),
-        cwes: aggregateEntityProgramCWEs(
-          entities,
-          programName,
-          entityProgramAgg,
-          cwes
-        ),
-        reports: aggregateEntityProgramReports(
+        cwes: aggregateEntityProgramCWEs(entities, programName, entityProgramAgg, cwes),
+        reports: aggregateEntityProgramReports(allCweIds)(
           entities,
           programName,
           entityProgramAgg,
@@ -85,24 +92,53 @@ const aggregateEntityProgramScopes =
 const aggregateEntityProgramCWEs =  
   aggregateEntityProgram('cwes');
 
-const aggregateEntityProgramReports = aggregateEntityProgram('reports', (reports) =>
-  reports.map(({ vulnerability_information, weakness, summaries, ...report }) => ({
-    ...report,
-    vulnerability_information:
-      vulnerability_information &&
-      vulnerability_information.replace(/(\r\n|\n|\r)/gm, '<br/>'),
-    weakness: weakness && {
-      ...weakness,
-      description:
-        weakness.description && weakness.description.replace(/(\r\n|\n|\r)/gm, '<br/>')
-    },
-    summaries: summaries.map(({ content, created_at, ...summary }) => ({
-      ...summary,
-      content: content.replace(/(\r\n|\n|\r)/gm, '<br/>'),
-      created_at: moment(created_at).format('MMM D, YY - h:mm A')
-    }))
-  }))
-);
+const aggregateEntityProgramReports = (allCweIds) =>
+  aggregateEntityProgram('reports', (reports) =>
+    reports.map(
+      ({
+        vulnerability_information,
+        weakness,
+        bug_reporter_agreed_on_going_public_at,
+        latest_activity_at,
+        latest_public_activity_at,
+        closed_at,
+        severity,
+        summaries,
+        ...report
+      }) => ({
+        ...report,
+        severityIsSet: severity && severity.rating & severity.score,
+        bug_reporter_agreed_on_going_public_at:
+          bug_reporter_agreed_on_going_public_at &&
+          moment(bug_reporter_agreed_on_going_public_at).format('MMM D, YY - h:mm A'),
+        latest_activity_at:
+          latest_activity_at && moment(latest_activity_at).format('MMM D, YY - h:mm A'),
+        latest_public_activity_at:
+          latest_public_activity_at &&
+          moment(latest_public_activity_at).format('MMM D, YY - h:mm A'),
+        closed_at: closed_at && moment(closed_at).format('MMM D, YY - h:mm A'),
+        vulnerability_information:
+          vulnerability_information &&
+          vulnerability_information.replace(/(\r\n|\n|\r)/gm, '<br/>'),
+        weakness: weakness && {
+          ...weakness,
+          valuedVulnerability: 
+            fp.includes(
+              fp.getOr('', 'external_id')(weakness)
+                .toLowerCase()
+            )(allCweIds),
+          description:
+            weakness.description &&
+            weakness.description.replace(/(\r\n|\n|\r)/gm, '<br/>')
+        },
+        summaries: summaries.map(({ content, created_at, ...summary }) => ({
+          ...summary,
+          content: content.replace(/(\r\n|\n|\r)/gm, '<br/>'),
+          created_at: created_at && moment(created_at).format('MMM D, YY - h:mm A')
+        }))
+      })
+    )
+  );
 
 const aggregateEntityProgramReporters = aggregateEntityProgram('reporters', (reporters) =>
   reporters.map(({ profile_picture, ...reporter }) => ({

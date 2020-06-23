@@ -22,9 +22,15 @@ const GET_ALL_REPORTS_QUERY = `
       title
       vulnerability_information
       jira_escalation_state
+      hacker_published
+      state
       substate
       created_at
+      closed_at
       url
+      bug_reporter_agreed_on_going_public_at
+      latest_activity_at
+      latest_public_activity_at
       reporter{
         id
         profile_picture(size: medium)
