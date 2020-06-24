@@ -191,6 +191,17 @@
               <span class="p-value">{{report.substate}}</span>
             </div>
           {{/if}}
+          {{#if (eq report.substate "triaged")}}
+            <div>
+              <span class="p-key">Triaged: </span>
+              <span class="p-value">
+                <a class="p-link" href="https://hackerone.com/bugs?subject={{program}}&report_id={{report.id}}&substates[]=triaged">
+                  View Triage Info in HackerOne
+                  {{fa-icon "external-link-square"}}
+                </a>
+              </span>
+            </div>
+          {{/if}}
           {{#if report.created_at}}
             <div>
               <span class="p-key">Created At: </span>
@@ -248,8 +259,44 @@
             {{/if}}
             <div>
               <span class="p-key">Valued Vulnerability: </span>
-              <span class="p-value">{{report.weakness.valuedVulnerability}}</span>
+              <span class="p-value">{{(not (not report.weakness.valuedVulnerability))}}</span>
             </div>
+
+            {{#if report.weakness.valuedVulnerability}}
+              <div>
+                <span class="p-key">More Info: </span>
+                <span class="p-value">{{{report.weakness.valuedVulnerability.link}}} {{fa-icon "external-link-square"}}</span>
+              </div>
+              {{#if report.weakness.valuedVulnerability.lowSeverity}}
+                <div>
+                  <span class="p-key">Severity (Low): </span>
+                  <span class="p-value">{{report.weakness.valuedVulnerability.lowSeverity}}</span>
+                </div>
+              {{/if}}
+              {{#if report.weakness.valuedVulnerability.highSeverity}}
+                <div>
+                  <span class="p-key">Severity (High): </span>
+                  <span class="p-value">{{report.weakness.valuedVulnerability.highSeverity}}</span>
+                </div>
+              {{/if}}
+              {{#if report.weakness.valuedVulnerability.commonWeaknessEnumeration}}
+                <div>
+                  <span class="p-key">Common Weakness Enumeration: </span>
+                  <span class="p-value">{{report.weakness.valuedVulnerability.commonWeaknessEnumeration}}</span>
+                </div>
+              {{/if}}
+              {{#if report.weakness.valuedVulnerability.bugExamples}}
+                <div>
+                  <span class="p-key">Bug Examples: </span>
+                  <span class="p-value">{{report.weakness.valuedVulnerability.bugExamples}}</span>
+                </div>
+            {{/if}}
+            {{#if report.weakness.bounties}}
+              <div>
+                <span class="p-value">Bounties: </span>
+                <div class="textBlock">{{{report.weakness.bounties}}}</div>
+              </div>
+            {{/if}}
             {{#if report.weakness.description}}
               <div>
                 <span class="p-value">Weakness Description: </span>

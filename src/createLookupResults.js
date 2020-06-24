@@ -45,6 +45,37 @@ const _createSummary = (entity, scopes, cwes, reports, reporters) => {
     fp.some(fp.some(fp.get('valuedVulnerability')))(reports)
       ? 'Valued Vulnerability Found'
       : '',
+    fp.some(
+      fp.some(
+        fp.flow(
+          fp.getOr([], 'summaries'),
+          fp.some(fp.flow(fp.getOr('', 'content'), fp.includes('[H1 Triage]')))
+        )
+      )
+    )(reports)
+      ? 'H1 Triaged'
+      : '',
+    fp.some(
+      fp.some(
+        (report) =>
+          fp.getOr('', 'assignee.username')(report) === 'Pending Final Bounty' ||
+          fp.getOr('', 'assignee.name')(report) === 'Pending Final Bounty' ||
+          fp.flow(
+            fp.getOr('', 'custom_field_values.nodes'),
+            fp.map(fp.get('value')),
+            (customFieldValues) =>
+              fp.includes('needs +1')(customFieldValues) ||
+              fp.includes('needs +2')(customFieldValues)
+          )(report) ||
+          fp.flow(
+            fp.getOr('', 'summaries'),
+            fp.map(fp.get('content')),
+            fp.includes(/suggested a .* bounty/g)
+          )(report)
+      )
+    )(reports)
+      ? 'Needs Bounty Review'
+      : '',
     fp.some((programReports) =>
       fp.some(
         (report) =>

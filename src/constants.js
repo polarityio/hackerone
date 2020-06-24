@@ -60,6 +60,7 @@ const GET_ALL_REPORTS_QUERY = `
         name
         description
         external_id
+        bounties
       }
       triage_meta {
         id

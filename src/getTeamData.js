@@ -20,10 +20,7 @@ const getTeamData = (entities, options, requestWithDefaults, Logger) =>
         responseCache
       );
 
-      const allCweIds = fp.flow(
-        fp.getOr([], 'cwes'),
-        fp.map(({ id }) => id.toLowerCase())
-      )(responseCache.get(programName));
+     
 
       return {
         /* Return Data Structure
@@ -92,9 +89,18 @@ const aggregateEntityProgramScopes =
 const aggregateEntityProgramCWEs =  
   aggregateEntityProgram('cwes');
 
-const aggregateEntityProgramReports = (allCweIds) =>
-  aggregateEntityProgram('reports', (reports) =>
-    reports.map(
+const aggregateEntityProgramReports = (programName) =>
+  aggregateEntityProgram('reports', (reports) => {
+    const allCwes = fp.getOr([], 'cwes')(responseCache.get(programName));
+
+    const allCweIds = fp.map(({ id }) => id.toLowerCase())(allCwes);
+
+    const getValuedVulnerabilityCWE = (weakness) => fp.find((cwe) => {
+      const weaknessId = fp.getOr('', 'external_id')(weakness).toLowerCase();
+      return cwe.id.toLowerCase() === weaknessId
+    }, allCwes);
+
+    return reports.map(
       ({
         vulnerability_information,
         weakness,
@@ -108,6 +114,13 @@ const aggregateEntityProgramReports = (allCweIds) =>
       }) => ({
         ...report,
         severityIsSet: severity && severity.rating & severity.score,
+        weakness: weakness && {
+          ...weakness,
+          valuedVulnerability: getValuedVulnerabilityCWE(weakness),
+          description:
+            weakness.description &&
+            weakness.description.replace(/(\r\n|\n|\r)/gm, '<br/>')
+        },
         bug_reporter_agreed_on_going_public_at:
           bug_reporter_agreed_on_going_public_at &&
           moment(bug_reporter_agreed_on_going_public_at).format('MMM D, YY - h:mm A'),
@@ -120,25 +133,14 @@ const aggregateEntityProgramReports = (allCweIds) =>
         vulnerability_information:
           vulnerability_information &&
           vulnerability_information.replace(/(\r\n|\n|\r)/gm, '<br/>'),
-        weakness: weakness && {
-          ...weakness,
-          valuedVulnerability: 
-            fp.includes(
-              fp.getOr('', 'external_id')(weakness)
-                .toLowerCase()
-            )(allCweIds),
-          description:
-            weakness.description &&
-            weakness.description.replace(/(\r\n|\n|\r)/gm, '<br/>')
-        },
         summaries: summaries.map(({ content, created_at, ...summary }) => ({
           ...summary,
           content: content.replace(/(\r\n|\n|\r)/gm, '<br/>'),
           created_at: created_at && moment(created_at).format('MMM D, YY - h:mm A')
         }))
       })
-    )
-  );
+    );
+  });
 
 const aggregateEntityProgramReporters = aggregateEntityProgram('reporters', (reporters) =>
   reporters.map(({ profile_picture, ...reporter }) => ({
