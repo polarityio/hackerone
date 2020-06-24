@@ -42,7 +42,7 @@ const getTeamData = (entities, options, requestWithDefaults, Logger) =>
           scopes
         ),
         cwes: aggregateEntityProgramCWEs(entities, programName, entityProgramAgg, cwes),
-        reports: aggregateEntityProgramReports(allCweIds)(
+        reports: aggregateEntityProgramReports(programName)(
           entities,
           programName,
           entityProgramAgg,
@@ -93,7 +93,6 @@ const aggregateEntityProgramReports = (programName) =>
   aggregateEntityProgram('reports', (reports) => {
     const allCwes = fp.getOr([], 'cwes')(responseCache.get(programName));
 
-    const allCweIds = fp.map(({ id }) => id.toLowerCase())(allCwes);
 
     const getValuedVulnerabilityCWE = (weakness) => fp.find((cwe) => {
       const weaknessId = fp.getOr('', 'external_id')(weakness).toLowerCase();
@@ -111,34 +110,41 @@ const aggregateEntityProgramReports = (programName) =>
         severity,
         summaries,
         ...report
-      }) => ({
-        ...report,
-        severityIsSet: severity && severity.rating & severity.score,
-        weakness: weakness && {
-          ...weakness,
-          valuedVulnerability: getValuedVulnerabilityCWE(weakness),
-          description:
-            weakness.description &&
-            weakness.description.replace(/(\r\n|\n|\r)/gm, '<br/>')
-        },
-        bug_reporter_agreed_on_going_public_at:
-          bug_reporter_agreed_on_going_public_at &&
-          moment(bug_reporter_agreed_on_going_public_at).format('MMM D, YY - h:mm A'),
-        latest_activity_at:
-          latest_activity_at && moment(latest_activity_at).format('MMM D, YY - h:mm A'),
-        latest_public_activity_at:
-          latest_public_activity_at &&
-          moment(latest_public_activity_at).format('MMM D, YY - h:mm A'),
-        closed_at: closed_at && moment(closed_at).format('MMM D, YY - h:mm A'),
-        vulnerability_information:
-          vulnerability_information &&
-          vulnerability_information.replace(/(\r\n|\n|\r)/gm, '<br/>'),
-        summaries: summaries.map(({ content, created_at, ...summary }) => ({
-          ...summary,
-          content: content.replace(/(\r\n|\n|\r)/gm, '<br/>'),
-          created_at: created_at && moment(created_at).format('MMM D, YY - h:mm A')
-        }))
-      })
+      }) => {
+        const valuedVulnerability = getValuedVulnerabilityCWE(weakness);
+        
+        return {
+          ...report,
+          severityIsSet: severity && severity.rating & severity.score,
+          weakness: weakness && {
+            ...weakness,
+            valuedVulnerability: {
+              ...valuedVulnerability,
+              hasValue: !!valuedVulnerability
+            },
+            description:
+              weakness.description &&
+              weakness.description.replace(/(\r\n|\n|\r)/gm, '<br/>')
+          },
+          bug_reporter_agreed_on_going_public_at:
+            bug_reporter_agreed_on_going_public_at &&
+            moment(bug_reporter_agreed_on_going_public_at).format('MMM D, YY - h:mm A'),
+          latest_activity_at:
+            latest_activity_at && moment(latest_activity_at).format('MMM D, YY - h:mm A'),
+          latest_public_activity_at:
+            latest_public_activity_at &&
+            moment(latest_public_activity_at).format('MMM D, YY - h:mm A'),
+          closed_at: closed_at && moment(closed_at).format('MMM D, YY - h:mm A'),
+          vulnerability_information:
+            vulnerability_information &&
+            vulnerability_information.replace(/(\r\n|\n|\r)/gm, '<br/>'),
+          summaries: summaries.map(({ content, created_at, ...summary }) => ({
+            ...summary,
+            content: content.replace(/(\r\n|\n|\r)/gm, '<br/>'),
+            created_at: created_at && moment(created_at).format('MMM D, YY - h:mm A')
+          }))
+        };
+      }
     );
   });
 

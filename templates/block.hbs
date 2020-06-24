@@ -183,7 +183,7 @@
           </div>
           <div>
             <span class="p-key">Severity Is Set: </span>
-            <span class="p-value">{{report.severityIsSet}}</span>
+            <span class="p-value">{{if report.severityIsSet report.severityIsSet "false"}}</span>
           </div>
           {{#if report.substate}}
             <div>
@@ -259,14 +259,16 @@
             {{/if}}
             <div>
               <span class="p-key">Valued Vulnerability: </span>
-              <span class="p-value">{{(not (not report.weakness.valuedVulnerability))}}</span>
+              <span class="p-value">{{report.weakness.valuedVulnerability.hasValue}}</span>
             </div>
 
             {{#if report.weakness.valuedVulnerability}}
-              <div>
-                <span class="p-key">More Info: </span>
-                <span class="p-value">{{{report.weakness.valuedVulnerability.link}}} {{fa-icon "external-link-square"}}</span>
-              </div>
+              {{#if report.weakness.valuedVulnerability.link}}
+                <div>
+                  <span class="p-key">More Weakness Info: </span>
+                  <span class="p-value">{{{report.weakness.valuedVulnerability.link}}} {{fa-icon "external-link-square"}}</span>
+                </div>
+              {{/if}}
               {{#if report.weakness.valuedVulnerability.lowSeverity}}
                 <div>
                   <span class="p-key">Severity (Low): </span>
@@ -290,11 +292,12 @@
                   <span class="p-key">Bug Examples: </span>
                   <span class="p-value">{{report.weakness.valuedVulnerability.bugExamples}}</span>
                 </div>
+              {{/if}}
             {{/if}}
             {{#if report.weakness.bounties}}
               <div>
                 <span class="p-value">Bounties: </span>
-                <div class="textBlock">{{{report.weakness.bounties}}}</div>
+                <div class="textBlock">{{report.weakness.bounties}}</div>
               </div>
             {{/if}}
             {{#if report.weakness.description}}

@@ -1,12 +1,19 @@
 const fp = require('lodash/fp');
 
-const createLookupResults = (options, entities, scopesMap, cweMap, reportsMap, reportersMap) =>
+const createLookupResults = (
+  options,
+  entities,
+  scopesMap,
+  cweMap,
+  reportsMap,
+  reportersMap
+) =>
   fp.map((entity) => {
     const scopes = scopesMap[entity.value];
     const cwes = cweMap[entity.value];
     const reports = reportsMap[entity.value];
     const reporters = reportersMap[entity.value];
-    
+
     const hasResults = fp.some(fp.map(fp.size));
 
     const resultsFound =
@@ -35,12 +42,12 @@ const createLookupResults = (options, entities, scopesMap, cweMap, reportsMap, r
 const _createSummary = (entity, scopes, cwes, reports, reporters) => {
   const scopesTags = [
     entity.type === 'custom' && entity.types.indexOf('custom.cwe') >= 0
-      ? '' : 
-    fp.flow(fp.values, fp.some(fp.get('eligible_for_submission')))(scopes)
+      ? ''
+      : fp.some(fp.some(fp.get('eligible_for_submission')))(scopes)
       ? 'In Scope'
       : 'Out of Scope'
   ];
-  
+
   const reportsTags = [
     fp.some(fp.some(fp.get('valuedVulnerability')))(reports)
       ? 'Valued Vulnerability Found'
@@ -80,9 +87,9 @@ const _createSummary = (entity, scopes, cwes, reports, reporters) => {
       fp.some(
         (report) =>
           fp.filter((_report) => {
-            const reportScopeId = fp.getOr('', 'structured_scope.id')(report);
+            const reportScopeId = fp.getOr('nope', 'structured_scope.id')(report);
             const _reportScopeId = fp.getOr('', 'structured_scope.id')(_report);
-            const reportWeaknessId = fp.getOr('', 'weakness.id')(report);
+            const reportWeaknessId = fp.getOr('nope', 'weakness.id')(report);
             const _reportWeaknessId = fp.getOr('', 'weakness.id')(_report);
             return (
               reportScopeId === _reportScopeId || reportWeaknessId === _reportWeaknessId
@@ -90,7 +97,7 @@ const _createSummary = (entity, scopes, cwes, reports, reporters) => {
           }, programReports).length > 1,
         programReports
       )
-    )
+    )(reports)
       ? 'Contains Possibly Duplicate Bugs'
       : ''
   ];
