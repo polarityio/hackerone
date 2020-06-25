@@ -5,7 +5,7 @@ const aggregateEntityProgram = (key, processResult = fp.identity) => (
   programName,
   entityProgramAgg,
   queryResult,
-  Logger
+  Logger = { trace: () => {} }
 ) =>
   /* Return Data Structure
    * {
@@ -18,15 +18,16 @@ const aggregateEntityProgram = (key, processResult = fp.identity) => (
    *   ...
    * }
    */
-  fp.reduce((agg, entity) => {
-    return {
-      ...agg,
+  fp.reduce(
+    (agg, entity) => ({
       ...fp.getOr({}, key)(entityProgramAgg),
+      ...agg,
       [entity.value]: {
         ...fp.getOr({}, `${key}["${entity.value}"]`)(entityProgramAgg),
         [programName]: processResult(queryResult[entity.value] || [])
       }
-    };
-  }, {})(entities);
+    }),
+    {}
+  )(entities);
 
 module.exports = aggregateEntityProgram;
