@@ -8,10 +8,6 @@
 HackerOne is a hacker-powered security platform that provides unmatched cybersecurity speed, depth and breadth of coverage at a greater value.
 Polarity's HackerOne integration allows automated queries against HackerOne's API for all of your programs information relating to Scopes, Valued Vulnerabilities, Weaknesses, and Reports.
 
-<div style="display:flex; justify-content:center; align-items:center;">
-  <img width="400" alt="Integration Example Main" src="./assets/integration-example-main.png">
-  <img width="400" alt="Integration Example Expanded" src="./assets/integration-example-expanded.png">
-</div>
 
 
 To learn more about HackerOne, visit the [official website](https://register.paloaltonetworks.com/introducingcortexxsoar).
