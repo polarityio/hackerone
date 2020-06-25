@@ -10,7 +10,7 @@
   {{/each}}
 </ul>
 
-{{#each programsToSearch as |program|}}
+{{#each programsToSearch as |program programIndex|}}
   {{#if (eq activeTab program.id)}}
     <div class="p-title">
       <a class="p-link" href="https://hackerone.com/{{program.id}}">
@@ -25,7 +25,7 @@
       </div>
     {{/if}}
     {{#each (get details.scopes program.id) as | scope index |}}
-      <div class="item">  
+      <div class="item">
         {{#if (get (get (get dropdownExpanded program.id) "scopes") index)}}
           <a
             href="#"
@@ -78,7 +78,7 @@
       </div>
     {{/each}}
 
-    {{#if (get details.scopes program.id)}}
+    {{#if (and (get details.scopes program.id) (gt programIndex 0))}}
       <hr />
     {{/if}}
     {{#if (get details.cwes program.id)}}
@@ -87,7 +87,7 @@
       </div>
     {{/if}}
     {{#each (get details.cwes program.id) as | cwe index |}}
-      <div class="item">  
+      <div class="item">
         {{#if (get (get (get dropdownExpanded program.id) "cwes") index)}}
           <a
             href="#"
@@ -104,7 +104,7 @@
             <span class="p-key">Valued Vulnerability: </span>
             <span class="p-value">{{cwe.valuedVulnerability}}</span>
           </div>
-          
+
           {{#if cwe.lowSeverity}}
             <div>
               <span class="p-key">Severity (Low): </span>
@@ -141,7 +141,7 @@
       </div>
     {{/each}}
 
-    {{#if (get details.cwes program.id)}}
+    {{#if (and (get details.cwes program.id)(gt programIndex 0))}}
       <hr />
     {{/if}}
     {{#if (get details.reports program.id)}}
@@ -150,7 +150,7 @@
       </div>
     {{/if}}
     {{#each (get details.reports program.id) as | report index |}}
-      <div class="item">  
+      <div class="item">
         {{#if (get (get (get dropdownExpanded program.id) "reports") index)}}
           <a
             href="#"
@@ -438,7 +438,7 @@
       </div>
     {{/each}}
 
-    {{#if (get details.reports program.id)}}
+    {{#if (and (get details.reports program.id)(gt programIndex 0))}}
       <hr />
     {{/if}}
     {{#if (get details.reporters program.id)}}
@@ -447,7 +447,7 @@
       </div>
     {{/if}}
     {{#each (get details.reporters program.id) as | reporter index |}}
-      <div class="item">  
+      <div class="item">
         {{#if (get (get (get dropdownExpanded program.id) "reporters") index)}}
           <a
             href="#"
