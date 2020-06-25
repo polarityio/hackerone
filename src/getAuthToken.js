@@ -1,13 +1,11 @@
 const fp = require('lodash/fp');
 const NodeCache = require('node-cache');
 const request = require('request');
-const config = require('../config/config');
 
 const cache = new NodeCache({
   stdTTL: 59 * 60
 });
 
-const _configFieldIsValid = (field) => typeof field === 'string' && field.length > 0;
 
 const getSetCookies = fp.flow(
   fp.get('set-cookie'),
@@ -15,21 +13,11 @@ const getSetCookies = fp.flow(
   fp.join('; ')
 );
 
-const getAuthToken = async (options, requestWithDefaults, Logger, cb) => {
-  const {
-    request: { ca, cert, key, passphrase, rejectUnauthorized, proxy }
-  } = config;
-
-  const defaults = {
-    ...(_configFieldIsValid(ca) && { ca: fs.readFileSync(ca) }),
-    ...(_configFieldIsValid(cert) && { cert: fs.readFileSync(cert) }),
-    ...(_configFieldIsValid(key) && { key: fs.readFileSync(key) }),
-    ...(_configFieldIsValid(passphrase) && { passphrase }),
-    ...(_configFieldIsValid(proxy) && { proxy }),
-    ...(typeof rejectUnauthorized === 'boolean' && { rejectUnauthorized })
-  };
-
-  const requestDefaults = request.defaults(defaults);
+const getAuthToken = async (options, defaults, Logger, cb) => {
+  const credentials = cache.get(`${options.email}${options.password}`)
+  if (credentials) return cb(null, credentials);
+  
+  const requestDefaults = request.defaults(fp.omit('json')(defaults));
 
   requestDefaults(
     {
@@ -73,7 +61,6 @@ const getAuthToken = async (options, requestWithDefaults, Logger, cb) => {
               json: true
             },
             (error, response) => {
-              Logger.trace({ response, error }, 'HERHER DOES THIS WORK');
               if (error) cb(error);
 
               if (
@@ -82,7 +69,12 @@ const getAuthToken = async (options, requestWithDefaults, Logger, cb) => {
                 response.body.graphql_token &&
                 response.body.graphql_token !== '----'
               ) {
-                cb(null, response.body.graphql_token);
+                const credentials = {
+                  token: response.body.graphql_token,
+                  Cookie: getSetCookies(response.headers)
+                }
+                cache.set(`${options.email}${options.password}`, credentials);
+                cb(null, credentials);
               }
             }
           );

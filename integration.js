@@ -1,10 +1,11 @@
 'use strict';
+const fp = require('lodash/fp');
 
-const validateOptions = require('./helpers/validateOptions');
-const createRequestWithDefaults = require('./helpers/createRequestWithDefaults');
+const validateOptions = require('./src/validateOptions');
+const createRequestWithDefaults = require('./src/createRequestWithDefaults');
 
-const { handleError } = require('./helpers/handleError');
-const { getLookupResults } = require('./helpers/getLookupResults');
+const { handleError } = require('./src/handleError');
+const { getLookupResults } = require('./src/getLookupResults');
 
 let Logger;
 let requestWithDefaults;
@@ -13,8 +14,13 @@ const startup = (logger) => {
   requestWithDefaults = createRequestWithDefaults(Logger);
 };
 
-const doLookup = async (entities, options, cb) => {
+const doLookup = async (entities, _options, cb) => {
   Logger.debug({ entities }, 'Entities');
+
+  const options = {
+    ..._options,
+    programsToSearch: formatProgramsToSearch(_options.programsToSearch)
+  };
 
   let lookupResults;
   try {
@@ -28,7 +34,26 @@ const doLookup = async (entities, options, cb) => {
   cb(null, lookupResults);
 };
 
-
+const formatProgramsToSearch = fp.flow(
+  fp.split(','),
+  fp.map(
+    fp.flow(
+      fp.trim,
+      fp.split('>'),
+      fp.thru((program) =>
+        program.length > 1
+          ? {
+              id: program[1],
+              alias: program[0]
+            }
+          : {
+              id: program[0],
+              alias: program[0]
+            }
+      )
+    )
+  )
+);
 module.exports = {
   doLookup,
   startup,

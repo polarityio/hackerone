@@ -1,8 +1,15 @@
 module.exports = {
   name: 'HackerOne',
   acronym: 'H1',
-  description: 'TODO',
-  entityTypes: ['IPv4', 'IPv6', 'hash', 'domain', 'email'],
+  description:
+    'HackerOne is a hacker-powered security platform that provides unmatched cybersecurity speed, depth and breadth of coverage at a greater value.',
+  entityTypes: ['IPv4', 'IPv6', 'domain'],
+  customTypes: [
+    {
+      key: 'cwe',
+      regex: /CWE-[0-9]{1,}/
+    }
+  ],
   styles: ['./styles/styles.less'],
   onDemandOnly: true,
   block: {
@@ -19,10 +26,10 @@ module.exports = {
     passphrase: '',
     ca: '',
     proxy: '',
-    rejectUnauthorized: false
+    rejectUnauthorized: true
   },
   logging: {
-    level: 'trace' //trace, debug, info, warn, error, fatal
+    level: 'info' //trace, debug, info, warn, error, fatal
   },
   options: [
     {
@@ -37,7 +44,7 @@ module.exports = {
     {
       key: 'password',
       name: 'Password',
-      description: 'The password  associated with your HackerOne account',
+      description: 'The password associated with your HackerOne account',
       default: '',
       type: 'password',
       userCanEdit: true,
@@ -47,10 +54,10 @@ module.exports = {
       key: 'programsToSearch',
       name: 'Programs to Search',
       description:
-        'A comma separated list of program IDs you would like to search on. These IDs can be found in the Program Page URL on the HackerOne Dashboard (https://hackerone.com/<program-id>...).',
-      default: '',
+        'A comma separated list of program IDs you would like to search on. These IDs can be found in the Program Page URL on the HackerOne Dashboard (https://hackerone.com/<program-id>...).  You also have the ability to optionally add an alias for each of your program IDs using the structure "ProgramAlias>programId".',
+      default: 'HackerOneExample>security',
       type: 'text',
-      userCanEdit: true,
+      userCanEdit: false,
       adminOnly: false
     }
   ]
