@@ -57,7 +57,7 @@ module.exports = {
         'A comma separated list of program IDs you would like to search on. These IDs can be found in the Program Page URL on the HackerOne Dashboard (https://hackerone.com/<program-id>...).  You also have the ability to optionally add an alias for each of your program IDs using the structure "ProgramAlias>programId".',
       default: 'HackerOneExample>security',
       type: 'text',
-      userCanEdit: true,
+      userCanEdit: false,
       adminOnly: false
     }
   ]

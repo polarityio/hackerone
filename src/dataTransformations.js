@@ -1,7 +1,7 @@
 const _ = require("lodash");
 const Aigle = require("aigle");
 const moment = require('moment');
-var {
+let {
   Extractor: { extractTable }
 } = require('markdown-tables-to-json');
 
