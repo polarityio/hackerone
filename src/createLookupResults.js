@@ -48,9 +48,13 @@ const _createSummary = (entity, scopes, cwes, reports, reporters) => {
       : 'Out of Scope'
   ];
 
+  const cwesTags = [
+    fp.flow(fp.flatMap(fp.map(fp.getOr('', 'commonWeaknessEnumeration'))), fp.uniq)(cwes)
+  ];
+
   const reportsTags = getReportsTags(reports);
 
-  return fp.flow(fp.flatten, fp.compact)([scopesTags, reportsTags]);
+  return fp.flow(fp.flatten, fp.compact)([scopesTags, reportsTags, cwesTags]);
 };
 
 
