@@ -17,11 +17,11 @@ const getProgramInfoQuery = async (
   })
 ) => {
   const entitiesWithIds = fp.map(
-    fp.assign({ id: `a${Math.random().toString(36).slice(2)}` })
+    (entity) => ({ ...entity, id: `a${Math.random().toString(36).slice(2)}` })
   )(entities);
 
   const query = programQueryBuilder(entitiesWithIds, programName, responseCache);
-
+  
   const { body } = await requestWithDefaults({
     url: 'https://hackerone.com/graphql',
     method: 'POST',
@@ -34,7 +34,6 @@ const getProgramInfoQuery = async (
       variables: { handle: programName }
     })
   });
-
   return {
     scopes: formatScopesResponse(entitiesWithIds, body, Logger),
     cwes: formatCweResponse(entitiesWithIds, programName, body, responseCache, Logger),

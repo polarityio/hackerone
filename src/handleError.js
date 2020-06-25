@@ -17,6 +17,10 @@ const STATUS_CODE_ERROR_MESSAGE = {
     err: 'Server Error',
     detail: 'Unexpected Server Error -> ' + `${error.description}`
   }),
+  internalServiceError: (error) => ({
+    err: 'Internal Service Error',
+    detail: 'Internal Service Error -> ' + `${error.description}`
+  }),
   unknown: (error) =>
     error.message.includes('getaddrinfo ENOTFOUND')
       ? {
@@ -42,17 +46,12 @@ const handleError = (error) =>
   )(error);
 
 const checkForInternalServiceError = (statusCode, response) => {
-  const { error, error_description } = response;
-  if (error) {
-    if (typeof error === "string") {
-      const internalServiceError = Error(`Internal Service Error: ${error}`);
-      internalServiceError.status = statusCode;
-      internalServiceError.description = `${error} -> ${error_description}`;
-      throw internalServiceError;
-    }
+  const { errors } = response;
+  if (errors && errors[0]) {
+    const error = errors[0]
     const internalServiceError = Error('Internal Service Error');
-    internalServiceError.status = statusCode;
-    internalServiceError.description = `${error.status} -> ${error.message}`;
+    internalServiceError.status = 'internalServiceError';
+    internalServiceError.description = error.message;
     throw internalServiceError;
 
   }

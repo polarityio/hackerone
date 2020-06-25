@@ -13,7 +13,7 @@ const createLookupResults = (
     const cwes = cweMap[entity.value];
     const reports = reportsMap[entity.value];
     const reporters = reportersMap[entity.value];
-
+    
     const hasResults = fp.some(fp.size);
 
     const resultsFound =
@@ -49,7 +49,7 @@ const _createSummary = (entity, scopes, cwes, reports, reporters) => {
   ];
 
   const cwesTags = [
-    fp.flow(fp.flatMap(fp.map(fp.getOr('', 'commonWeaknessEnumeration'))), fp.uniq)(cwes)
+    ...fp.flow(fp.flatMap(fp.map(fp.getOr('', 'commonWeaknessEnumeration'))), fp.uniq)(cwes)
   ];
 
   const reportsTags = getReportsTags(reports);

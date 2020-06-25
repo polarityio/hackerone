@@ -42,7 +42,10 @@ const createRequestWithDefaults = (Logger) => {
       try {
         const { body, ...result } = await _requestWithDefault(_requestOptions);
 
-        checkForStatusError({ body, ...result });
+        checkForStatusError(
+          { body: bodyWillBeJSON || defaults.json ? JSON.parse(body) : body, ...result },
+          requestOptions
+        );
 
         postRequestFunctionResults = await postRequestSuccessFunction({
           ...result,
