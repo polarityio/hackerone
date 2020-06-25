@@ -5,7 +5,15 @@ polarity.export = PolarityComponent.extend({
   programHasResultsMap: {},
   dropdownExpanded: {},
   init() {
-    this.set('activeTab', this.get('programsToSearch')[0]);
+    this.set(
+      'activeTab',
+      this.get('programsToSearch').filter((program) =>
+        ['scopes', 'cwes', 'reports', 'reporters'].some((dataType) => {
+          const dataList = this.get('details')[dataType][program];
+          return dataList && dataList.length;
+        })
+      )[0]
+    );
     this.set(
       'programHasResultsMap',
       this.get('programsToSearch').reduce(

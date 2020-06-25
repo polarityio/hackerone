@@ -1,9 +1,5 @@
-const {
-  _P,
-  partitionFlatMap,
-  splitOutIgnoredIps
-} = require('./dataTransformations');
-const getTeamData = require('./getTeamData')
+const { partitionFlatMap, splitOutIgnoredIps } = require('./dataTransformations');
+const getQueryData = require('./getQueryData/index')
 const createLookupResults = require('./createLookupResults');
 
 const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
@@ -13,11 +9,12 @@ const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
         _entitiesPartition
       );
 
-      const {
-        teamData: { scopes, cwes, reports, reporters }
-      } = await _P.parallel({
-        teamData: getTeamData(entitiesPartition, options, requestWithDefaults, Logger)
-      });
+      const { scopes, cwes, reports, reporters } = await getQueryData(
+        entitiesPartition,
+        options,
+        requestWithDefaults,
+        Logger
+      );
 
       const lookupResults = createLookupResults(
         options,
