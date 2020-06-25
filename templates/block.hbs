@@ -78,7 +78,7 @@
       </div>
     {{/each}}
 
-    {{#if (and (get details.scopes program.id) (gt programIndex 0))}}
+    {{#if (and (get details.scopes program.id) (or (get details.cwes program.id) (get details.reports program.id) (get details.reporters program.id)))}}
       <hr />
     {{/if}}
     {{#if (get details.cwes program.id)}}
@@ -141,7 +141,7 @@
       </div>
     {{/each}}
 
-    {{#if (and (get details.cwes program.id)(gt programIndex 0))}}
+    {{#if (and (get details.cwes program.id) (or (get details.reports program.id) (get details.reporters program.id)))}}
       <hr />
     {{/if}}
     {{#if (get details.reports program.id)}}
@@ -438,7 +438,7 @@
       </div>
     {{/each}}
 
-    {{#if (and (get details.reports program.id)(gt programIndex 0))}}
+    {{#if (and (get details.reports program.id) (get details.reporters program.id))}}
       <hr />
     {{/if}}
     {{#if (get details.reporters program.id)}}
