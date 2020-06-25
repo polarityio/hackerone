@@ -1,9 +1,9 @@
 <ul class="nav nav-tabs">
   {{#each programsToSearch as |program|}}
-    {{#if (get programHasResultsMap program)}}
+    {{#if (get programHasResultsMap program.id)}}
       <li class="nav-item">
-        <a {{action "changeTab" program}} class="nav-link {{if (or (eq activeTab program)(not activeTab)) "active"}}" href="#">
-          {{program}}
+        <a {{action "changeTab" program.id}} class="nav-link {{if (or (eq activeTab program.id)(not activeTab)) "active"}}" href="#">
+          {{program.alias}}
         </a>
       </li>
     {{/if}}
@@ -11,26 +11,26 @@
 </ul>
 
 {{#each programsToSearch as |program|}}
-  {{#if (eq activeTab program)}}
+  {{#if (eq activeTab program.id)}}
     <div class="p-title">
-      <a class="p-link" href="https://hackerone.com/{{program}}">
-        View {{program}} program in HackerOne
+      <a class="p-link" href="https://hackerone.com/{{program.id}}">
+        View {{program.alias}} in HackerOne
         {{fa-icon "external-link-square" class="external-link-icon"}}
       </a>
     </div>
 
-    {{#if (get details.scopes program)}}
+    {{#if (get details.scopes program.id)}}
       <div class="p-title">
         {{fa-icon "info-circle" class="info-circle"}} Scopes
       </div>
     {{/if}}
-    {{#each (get details.scopes program) as | scope index |}}
+    {{#each (get details.scopes program.id) as | scope index |}}
       <div class="item">  
-        {{#if (get (get (get dropdownExpanded program) "scopes") index)}}
+        {{#if (get (get (get dropdownExpanded program.id) "scopes") index)}}
           <a
             href="#"
             class="dropdown"
-            {{on "click" (action "toggleExpand" program "scopes" index)}}
+            {{on "click" (action "toggleExpand" program.id "scopes" index)}}
           >
             <span class="text"><span class="desc">Asset ID: </span>{{scope.asset_identifier}}</span> {{fa-icon "angle-up"}}
           </a>
@@ -70,7 +70,7 @@
           <a
             href="#"
             class="dropdown"
-            {{on "click" (action "toggleExpand" program "scopes" index)}}
+            {{on "click" (action "toggleExpand" program.id "scopes" index)}}
           >
             <span class="text">{{scope.asset_identifier}}</span> {{fa-icon "angle-down"}}
           </a>
@@ -78,21 +78,21 @@
       </div>
     {{/each}}
 
-    {{#if (get details.scopes program)}}
+    {{#if (get details.scopes program.id)}}
       <hr />
     {{/if}}
-    {{#if (get details.cwes program)}}
+    {{#if (get details.cwes program.id)}}
       <div class="p-title">
         {{fa-icon "info-circle" class="info-circle"}} CWEs
       </div>
     {{/if}}
-    {{#each (get details.cwes program) as | cwe index |}}
+    {{#each (get details.cwes program.id) as | cwe index |}}
       <div class="item">  
-        {{#if (get (get (get dropdownExpanded program) "cwes") index)}}
+        {{#if (get (get (get dropdownExpanded program.id) "cwes") index)}}
           <a
             href="#"
             class="dropdown"
-            {{on "click" (action "toggleExpand" program "cwes" index)}}
+            {{on "click" (action "toggleExpand" program.id "cwes" index)}}
           >
             <span class="text"><span class="desc">CWE ID: </span>{{cwe.id}}</span> {{fa-icon "angle-up"}}
           </a>
@@ -100,6 +100,11 @@
             <span class="p-key">More Info: </span>
             <span class="p-value">{{{cwe.link}}} {{fa-icon "external-link-square"}}</span>
           </div>
+          <div>
+            <span class="p-key">Valued Vulnerability: </span>
+            <span class="p-value">{{cwe.valuedVulnerability}}</span>
+          </div>
+          
           {{#if cwe.lowSeverity}}
             <div>
               <span class="p-key">Severity (Low): </span>
@@ -128,7 +133,7 @@
           <a
             href="#"
             class="dropdown"
-            {{on "click" (action "toggleExpand" program "cwes" index)}}
+            {{on "click" (action "toggleExpand" program.id "cwes" index)}}
           >
             <span class="text">{{cwe.id}}</span> {{fa-icon "angle-down"}}
           </a>
@@ -136,21 +141,21 @@
       </div>
     {{/each}}
 
-    {{#if (get details.cwes program)}}
+    {{#if (get details.cwes program.id)}}
       <hr />
     {{/if}}
-    {{#if (get details.reports program)}}
+    {{#if (get details.reports program.id)}}
       <div class="p-title">
         {{fa-icon "info-circle" class="info-circle"}} Reports
       </div>
     {{/if}}
-    {{#each (get details.reports program) as | report index |}}
+    {{#each (get details.reports program.id) as | report index |}}
       <div class="item">  
-        {{#if (get (get (get dropdownExpanded program) "reports") index)}}
+        {{#if (get (get (get dropdownExpanded program.id) "reports") index)}}
           <a
             href="#"
             class="dropdown"
-            {{on "click" (action "toggleExpand" program "reports" index)}}
+            {{on "click" (action "toggleExpand" program.id "reports" index)}}
           >
             <span class="text"><span class="desc">Title: </span>{{report.title}}</span> {{fa-icon "angle-up"}}
           </a>
@@ -195,7 +200,7 @@
             <div>
               <span class="p-key">Triaged: </span>
               <span class="p-value">
-                <a class="p-link" href="https://hackerone.com/bugs?subject={{program}}&report_id={{report.id}}&substates[]=triaged">
+                <a class="p-link" href="https://hackerone.com/bugs?subject={{program.id}}&report_id={{report.id}}&substates[]=triaged">
                   View Triage Info in HackerOne
                   {{fa-icon "external-link-square"}}
                 </a>
@@ -425,7 +430,7 @@
           <a
             href="#"
             class="dropdown"
-            {{on "click" (action "toggleExpand" program "reports" index)}}
+            {{on "click" (action "toggleExpand" program.id "reports" index)}}
           >
             <span class="text">{{report.title}}</span> {{fa-icon "angle-down"}}
           </a>
@@ -433,21 +438,21 @@
       </div>
     {{/each}}
 
-    {{#if (get details.reports program)}}
+    {{#if (get details.reports program.id)}}
       <hr />
     {{/if}}
-    {{#if (get details.reporters program)}}
+    {{#if (get details.reporters program.id)}}
       <div class="p-title">
         {{fa-icon "info-circle" class="info-circle"}} Reporters
       </div>
     {{/if}}
-    {{#each (get details.reporters program) as | reporter index |}}
+    {{#each (get details.reporters program.id) as | reporter index |}}
       <div class="item">  
-        {{#if (get (get (get dropdownExpanded program) "reporters") index)}}
+        {{#if (get (get (get dropdownExpanded program.id) "reporters") index)}}
           <a
             href="#"
             class="dropdown"
-            {{on "click" (action "toggleExpand" program "reporters" index)}}
+            {{on "click" (action "toggleExpand" program.id "reporters" index)}}
           >
             <span class="text username">{{reporter.username}}</span> {{fa-icon "angle-up"}}
           </a>
@@ -548,7 +553,7 @@
           <a
             href="#"
             class="dropdown"
-            {{on "click" (action "toggleExpand" program "reporters" index)}}
+            {{on "click" (action "toggleExpand" program.id "reporters" index)}}
           >
             <span class="text username">{{reporter.username}}</span> {{fa-icon "angle-down"}}
           </a>

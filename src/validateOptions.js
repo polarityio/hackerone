@@ -18,7 +18,10 @@ const validateOptions = (options, callback) => {
     fp.map(fp.trim),
     fp.some(fp.includes(' '))
   )(options.programsToSearch.value)
-    ? 'Program Names are not allowed to include spaces.'
+    ? {
+        key: 'programsToSearch',
+        message: 'Program Names are not allowed to include spaces.'
+      }
     : [];
 
   callback(null, stringValidationErrors.concat(commaSeparatedListError));

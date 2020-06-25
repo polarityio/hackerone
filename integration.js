@@ -19,10 +19,7 @@ const doLookup = async (entities, _options, cb) => {
 
   const options = {
     ..._options,
-    programsToSearch: fp.flow(
-      fp.split(','),
-      fp.map(fp.trim)
-    )(_options.programsToSearch)
+    programsToSearch: formatProgramsToSearch(_options.programsToSearch)
   };
 
   let lookupResults;
@@ -37,7 +34,26 @@ const doLookup = async (entities, _options, cb) => {
   cb(null, lookupResults);
 };
 
-
+const formatProgramsToSearch = fp.flow(
+  fp.split(','),
+  fp.map(
+    fp.flow(
+      fp.trim,
+      fp.split('>'),
+      fp.thru((program) =>
+        program.length > 1
+          ? {
+              id: program[1],
+              alias: program[0]
+            }
+          : {
+              id: program[0],
+              alias: program[0]
+            }
+      )
+    )
+  )
+);
 module.exports = {
   doLookup,
   startup,

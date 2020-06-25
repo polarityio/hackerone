@@ -11,7 +11,7 @@ const responseCache = new NodeCache({
 const getQueryData = (entities, options, requestWithDefaults, Logger) =>
   _P.reduce(
     options.programsToSearch,
-    async (entityProgramAgg, programName) => {
+    async (entityProgramAgg, { id: programName }) => {
       const { scopes, cwes, reports, reporters } = await getProgramInfoQuery(
         entities,
         programName,

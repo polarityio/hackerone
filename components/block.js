@@ -7,20 +7,20 @@ polarity.export = PolarityComponent.extend({
   init() {
     this.set(
       'activeTab',
-      this.get('programsToSearch').filter((program) =>
+      this.get('programsToSearch').filter(({ id: programId }) =>
         ['scopes', 'cwes', 'reports', 'reporters'].some((dataType) => {
-          const dataList = this.get('details')[dataType][program];
+          const dataList = this.get('details')[dataType][programId];
           return dataList && dataList.length;
         })
-      )[0]
+      )[0].id
     );
     this.set(
       'programHasResultsMap',
       this.get('programsToSearch').reduce(
-        (agg, program) =>
+        (agg, { id: programId }) =>
           Object.assign({}, agg, {
-            [program]: ['scopes', 'cwes', 'reports', 'reporters'].some((dataType) => {
-              const dataList = this.get('details')[dataType][program];
+            [programId]: ['scopes', 'cwes', 'reports', 'reporters'].some((dataType) => {
+              const dataList = this.get('details')[dataType][programId];
               return dataList && dataList.length;
             })
           }),
@@ -33,23 +33,23 @@ polarity.export = PolarityComponent.extend({
     changeTab: function (tabName) {
       this.set(`activeTab`, tabName);
     },
-    toggleExpand: function (program, dataType, index) {
+    toggleExpand: function (programId, dataType, index) {
       const modifiedDropdownExpanded = Object.assign({}, this.get('dropdownExpanded'), {
-        [program]: Object.assign(
+        [programId]: Object.assign(
           {},
-          this.get('dropdownExpanded') && this.get('dropdownExpanded')[program],
+          this.get('dropdownExpanded') && this.get('dropdownExpanded')[programId],
           {
             [dataType]: Object.assign(
               {},
               this.get('dropdownExpanded') &&
-                this.get('dropdownExpanded')[program] &&
-                this.get('dropdownExpanded')[program][dataType],
+                this.get('dropdownExpanded')[programId] &&
+                this.get('dropdownExpanded')[programId][dataType],
               {
                 [index]: !(
                   this.get('dropdownExpanded') &&
-                  this.get('dropdownExpanded')[program] &&
-                  this.get('dropdownExpanded')[program][dataType] &&
-                  this.get('dropdownExpanded')[program][dataType][index]
+                  this.get('dropdownExpanded')[programId] &&
+                  this.get('dropdownExpanded')[programId][dataType] &&
+                  this.get('dropdownExpanded')[programId][dataType][index]
                 )
               }
             )

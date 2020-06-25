@@ -17,10 +17,6 @@ const STATUS_CODE_ERROR_MESSAGE = {
     err: 'Server Error',
     detail: 'Unexpected Server Error -> ' + `${error.description}`
   }),
-  jwtCreationError: (error) => ({
-    err: 'Problem Creating JWT with Private Key',
-    detail: 'Problem With Private Key -> ' + `${error.message}`
-  }),
   unknown: (error) =>
     error.message.includes('getaddrinfo ENOTFOUND')
       ? {

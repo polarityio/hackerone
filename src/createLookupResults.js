@@ -14,7 +14,7 @@ const createLookupResults = (
     const reports = reportsMap[entity.value];
     const reporters = reportersMap[entity.value];
 
-    const hasResults = fp.some(fp.map(fp.size));
+    const hasResults = fp.some(fp.size);
 
     const resultsFound =
       hasResults(scopes) ||
@@ -48,61 +48,71 @@ const _createSummary = (entity, scopes, cwes, reports, reporters) => {
       : 'Out of Scope'
   ];
 
-  const reportsTags = [
-    fp.some(fp.some(fp.get('valuedVulnerability')))(reports)
-      ? 'Valued Vulnerability Found'
-      : '',
-    fp.some(
-      fp.some(
-        fp.flow(
-          fp.getOr([], 'summaries'),
-          fp.some(fp.flow(fp.getOr('', 'content'), fp.includes('[H1 Triage]')))
-        )
-      )
-    )(reports)
-      ? 'H1 Triaged'
-      : '',
-    fp.some(
-      fp.some(
-        (report) =>
-          fp.getOr('', 'assignee.username')(report) === 'Pending Final Bounty' ||
-          fp.getOr('', 'assignee.name')(report) === 'Pending Final Bounty' ||
-          fp.flow(
-            fp.getOr('', 'custom_field_values.nodes'),
-            fp.map(fp.get('value')),
-            (customFieldValues) =>
-              fp.includes('needs +1')(customFieldValues) ||
-              fp.includes('needs +2')(customFieldValues)
-          )(report) ||
-          fp.flow(
-            fp.getOr('', 'summaries'),
-            fp.map(fp.get('content')),
-            fp.includes(/suggested a .* bounty/g)
-          )(report)
-      )
-    )(reports)
-      ? 'Needs Bounty Review'
-      : '',
-    fp.some((programReports) =>
-      fp.some(
-        (report) =>
-          fp.filter((_report) => {
-            const reportScopeId = fp.getOr('nope', 'structured_scope.id')(report);
-            const _reportScopeId = fp.getOr('', 'structured_scope.id')(_report);
-            const reportWeaknessId = fp.getOr('nope', 'weakness.id')(report);
-            const _reportWeaknessId = fp.getOr('', 'weakness.id')(_report);
-            return (
-              reportScopeId === _reportScopeId || reportWeaknessId === _reportWeaknessId
-            );
-          }, programReports).length > 1,
-        programReports
-      )
-    )(reports)
-      ? 'Contains Possibly Duplicate Bugs'
-      : ''
-  ];
+  const reportsTags = getReportsTags(reports);
 
   return fp.flow(fp.flatten, fp.compact)([scopesTags, reportsTags]);
+};
+
+
+const getReportsTags = (reports) => {
+  const valuedVulnerabilityFound = fp.some(fp.some(fp.get('valuedVulnerability')))(
+    reports
+  )
+    ? 'Valued Vulnerability Found'
+    : '';
+
+  const h1Triaged = fp.some(
+    fp.some(
+      fp.flow(
+        fp.getOr([], 'summaries'),
+        fp.some(fp.flow(fp.getOr('', 'content'), fp.includes('[H1 Triage]')))
+      )
+    )
+  )(reports)
+    ? 'H1 Triaged'
+    : '';
+
+  const needsBountyReview = fp.some(
+    fp.some(
+      (report) =>
+        fp.getOr('', 'assignee.username')(report) === 'Pending Final Bounty' ||
+        fp.getOr('', 'assignee.name')(report) === 'Pending Final Bounty' ||
+        fp.flow(
+          fp.getOr('', 'custom_field_values.nodes'),
+          fp.map(fp.get('value')),
+          (customFieldValues) =>
+            fp.includes('needs +1')(customFieldValues) ||
+            fp.includes('needs +2')(customFieldValues)
+        )(report) ||
+        fp.flow(
+          fp.getOr('', 'summaries'),
+          fp.map(fp.get('content')),
+          fp.includes(/suggested a .* bounty/g)
+        )(report)
+    )
+  )(reports)
+    ? 'Needs Bounty Review'
+    : '';
+
+  const duplicateBugs = fp.some((programReports) =>
+    fp.some(
+      (report) =>
+        fp.filter((_report) => {
+          const reportScopeId = fp.getOr('nope', 'structured_scope.id')(report);
+          const _reportScopeId = fp.getOr('', 'structured_scope.id')(_report);
+          const reportWeaknessId = fp.getOr('nope', 'weakness.id')(report);
+          const _reportWeaknessId = fp.getOr('', 'weakness.id')(_report);
+          return (
+            reportScopeId === _reportScopeId || reportWeaknessId === _reportWeaknessId
+          );
+        }, programReports).length > 1,
+      programReports
+    )
+  )(reports)
+    ? 'Contains Possibly Duplicate Bugs'
+    : '';
+
+  return [valuedVulnerabilityFound, h1Triaged, needsBountyReview, duplicateBugs];
 };
 
 module.exports = createLookupResults;
