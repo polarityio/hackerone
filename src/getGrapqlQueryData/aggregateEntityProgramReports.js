@@ -1,6 +1,6 @@
 const fp = require('lodash/fp');
 const moment = require('moment');
-const aggregateEntityProgram = require('./aggregateEntityProgram');
+const aggregateEntityProgram = require('../aggregateEntityProgram');
 
 const aggregateEntityProgramReports = (programName, responseCache) =>
   aggregateEntityProgram('reports', (reports) => {
