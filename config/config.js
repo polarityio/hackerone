@@ -55,7 +55,7 @@ module.exports = {
       key: 'useGraphql',
       name: 'Use Standard Login',
       description:
-        'Allows you to use your normal login email and password to access the full features of the integration.',
+        'Allows you to use your normal dashboard login email and password to access the full features of the integration, including controlling what programs to search with aliasing and access to more data from the system.',
       default: false,
       type: 'boolean',
       userCanEdit: true,
