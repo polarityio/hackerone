@@ -33,6 +33,33 @@ module.exports = {
   },
   options: [
     {
+      key: 'apiUsername',
+      name: 'API Username',
+      description: 'The username associated with your API HackerOne account. (This is not neccisarily the same as the username for your normal HackerOne account)',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'apiKey',
+      name: 'API Key',
+      description: 'The your API Key for HackerOne.',
+      default: '',
+      type: 'password',
+      userCanEdit: true,
+      adminOnly: false
+    },
+    {
+      key: 'useGraphql',
+      name: 'Use GraphQL',
+      description: 'Allows you to use your normal login email and password to access the full features of the integration.',
+      default: false,
+      type: 'boolean',
+      userCanEdit: true,
+      adminOnly: false
+    },
+    {
       key: 'email',
       name: 'Email',
       description: 'The email associated with your HackerOne account',

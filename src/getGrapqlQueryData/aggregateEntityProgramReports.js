@@ -2,8 +2,6 @@ const fp = require('lodash/fp');
 const moment = require('moment');
 const aggregateEntityProgram = require('./aggregateEntityProgram');
 
-
-
 const aggregateEntityProgramReports = (programName, responseCache) =>
   aggregateEntityProgram('reports', (reports) => {
     const allCwes = fp.getOr([], 'cwes')(responseCache.get(programName));
@@ -11,12 +9,11 @@ const aggregateEntityProgramReports = (programName, responseCache) =>
     const getValuedVulnerabilityCWE = (weakness) =>
       fp.find((cwe) => {
         const weaknessId = fp.getOr('', 'external_id')(weakness).toLowerCase();
-        return cwe.id.toLowerCase() === weaknessId;
+        return cwe.label.toLowerCase() === weaknessId;
       }, allCwes);
 
     return formatReports(reports, getValuedVulnerabilityCWE);
   });
-
 
 const formatReports = (reports, getValuedVulnerabilityCWE) =>
   reports.map(
@@ -66,4 +63,5 @@ const formatReports = (reports, getValuedVulnerabilityCWE) =>
       };
     }
   );
+  
 module.exports = aggregateEntityProgramReports;

@@ -6,17 +6,16 @@ const cache = new NodeCache({
   stdTTL: 59 * 60
 });
 
-
 const getSetCookies = fp.flow(
   fp.get('set-cookie'),
   fp.map(fp.flow(fp.split('; '), fp.first)),
   fp.join('; ')
 );
 
-const getAuthToken = async (options, defaults, Logger, cb) => {
-  const credentials = cache.get(`${options.email}${options.password}`)
+const getGraphqlAuthToken = async (options, defaults, Logger, cb) => {
+  const credentials = cache.get(`${options.email}${options.password}`);
   if (credentials) return cb(null, credentials);
-  
+
   const requestDefaults = request.defaults(fp.omit('json')(defaults));
 
   requestDefaults(
@@ -72,7 +71,7 @@ const getAuthToken = async (options, defaults, Logger, cb) => {
                 const credentials = {
                   token: response.body.graphql_token,
                   Cookie: getSetCookies(response.headers)
-                }
+                };
                 cache.set(`${options.email}${options.password}`, credentials);
                 cb(null, credentials);
               }
@@ -84,4 +83,6 @@ const getAuthToken = async (options, defaults, Logger, cb) => {
   );
 };
 
-module.exports = getAuthToken;
+module.exports = {
+  getGraphqlAuthToken
+};

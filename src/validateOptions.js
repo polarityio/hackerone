@@ -1,10 +1,17 @@
-const fp = require("lodash/fp");
+const fp = require('lodash/fp');
 const reduce = require('lodash/fp/reduce').convert({ cap: false });
 
 const validateOptions = (options, callback) => {
   const stringOptionsErrorMessages = {
-    email: 'You must provide a valid Email from you HackerOne Account',
-    password: 'You must provide a valid Password from you HackerOne Account',
+    ...(options.useGraphql.value
+      ? {
+          email: 'You must provide a valid Email from you HackerOne Account',
+          password: 'You must provide a valid Password from you HackerOne Account'
+        }
+      : {
+          apiUsername: 'You must provide a valid API Username from HackerOne',
+          apiKey: 'You must provide a valid API Key from HackerOne'
+        }),
     programsToSearch: 'You must provide at least one valid Program to Search in HackerOne'
   };
 
@@ -12,7 +19,7 @@ const validateOptions = (options, callback) => {
     stringOptionsErrorMessages,
     options
   );
-  
+
   const commaSeparatedListError = fp.flow(
     fp.split(','),
     fp.map(fp.trim),
@@ -39,6 +46,5 @@ const _validateStringOptions = (stringOptionsErrorMessages, options, otherErrors
         })
       : agg;
   }, otherErrors)(stringOptionsErrorMessages);
-
 
 module.exports = validateOptions;

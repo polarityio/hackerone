@@ -1,5 +1,6 @@
 const { partitionFlatMap, splitOutIgnoredIps } = require('./dataTransformations');
-const getQueryData = require('./getQueryData/index')
+const getGrapqlQueryData = require('./getGrapqlQueryData/index');
+const getRestQueryData = require('./getRestQueryData');
 const createLookupResults = require('./createLookupResults');
 
 const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
@@ -9,23 +10,56 @@ const getLookupResults = (entities, options, requestWithDefaults, Logger) =>
         _entitiesPartition
       );
 
-      const { scopes, cwes, reports, reporters } = await getQueryData(
-        entitiesPartition,
-        options,
-        requestWithDefaults,
-        Logger
-      );
+      let lookupResults;
+      if (options.useGraphql) {
+        const { scopes, cwes, reports, reporters } = await getGrapqlQueryData(
+          entitiesPartition,
+          options,
+          requestWithDefaults,
+          Logger
+        );
 
-      const lookupResults = createLookupResults(
-        options,
-        entitiesPartition,
-        scopes,
-        cwes,
-        reports,
-        reporters
-      );
+        lookupResults = createLookupResults(
+          options,
+          entitiesPartition,
+          scopes,
+          cwes,
+          reports,
+          reporters
+        );
+        Logger.trace(
+          { scopes, cwes, reports, reporters, lookupResults },
+          'Query Results'
+        );
+      } else {
+        const {
+          programsToSearch,
+          scopes,
+          cwes,
+          reports,
+          reporters
+        } = await getRestQueryData(
+          entitiesPartition,
+          options,
+          requestWithDefaults,
+          Logger
+        );
 
-      Logger.trace({ scopes, cwes, reports, reporters, lookupResults }, 'Query Results');
+        lookupResults = createLookupResults(
+          options,
+          entitiesPartition,
+          scopes,
+          cwes,
+          reports,
+          reporters,
+          programsToSearch
+        );
+
+        Logger.trace(
+          { programsToSearch, scopes, cwes, reports, reporters, lookupResults },
+          'Rest Requests Results'
+        );
+      }
 
       return lookupResults.concat(ignoredIpLookupResults);
     },

@@ -4,11 +4,10 @@ const { promisify } = require('util');
 const fp = require('lodash/fp');
 const config = require('../config/config');
 
-const getAuthToken = require('./getAuthToken');
+const { getGraphqlAuthToken } = require('./getAuthToken');
 const { checkForInternalServiceError } = require('./handleError');
 
-const _configFieldIsValid = (field) =>
-  typeof field === "string" && field.length > 0;
+const _configFieldIsValid = (field) => typeof field === 'string' && field.length > 0;
 
 const createRequestWithDefaults = (Logger) => {
   const {
@@ -21,14 +20,16 @@ const createRequestWithDefaults = (Logger) => {
     ...(_configFieldIsValid(key) && { key: fs.readFileSync(key) }),
     ...(_configFieldIsValid(passphrase) && { passphrase }),
     ...(_configFieldIsValid(proxy) && { proxy }),
-    ...(typeof rejectUnauthorized === "boolean" && { rejectUnauthorized }),
+    ...(typeof rejectUnauthorized === 'boolean' && { rejectUnauthorized }),
     json: true
   };
 
   const requestWithDefaults = (
     preRequestFunction = () => ({}),
     postRequestSuccessFunction = (x) => x,
-    postRequestFailureFunction = (e) => { throw e; }
+    postRequestFailureFunction = (e) => {
+      throw e;
+    }
   ) => {
     const _requestWithDefault = promisify(request.defaults(fp.omit('json')(defaults)));
     return async ({ json: bodyWillBeJSON, ...requestOptions }) => {
@@ -62,25 +63,43 @@ const createRequestWithDefaults = (Logger) => {
   };
 
   const handleAuth = async (requestOptions) => {
-    const getAuthTokenPromise = promisify((cb) =>
-      getAuthToken(requestOptions.options, defaults, Logger, cb)
-    ).bind(this);
-    
-    const { token, Cookie } = await getAuthTokenPromise().catch((error) => {
-      Logger.error({ error }, 'Unable to retrieve Auth Token');
-      throw error;
-    });
+    if (requestOptions.options.useGraphql) {
+      const getAuthTokenPromise = promisify((cb) =>
+        getGraphqlAuthToken(requestOptions.options, defaults, Logger, cb)
+      ).bind(this);
 
-    Logger.trace({ token, Cookie }, 'Credentials');
+      const { token, Cookie } = await getAuthTokenPromise().catch((error) => {
+        Logger.error({ error }, 'Unable to retrieve Auth Token');
+        throw error;
+      });
 
-    return {
-      ...requestOptions,
-      headers: {
-        ...requestOptions.headers,
-        'x-auth-token': token,
-        Cookie
-      }
-    };
+      Logger.trace({ token, Cookie }, 'GrapQL Credentials');
+
+      return {
+        ...requestOptions,
+        headers: {
+          ...requestOptions.headers,
+          'x-auth-token': token,
+          Cookie
+        }
+      };
+    } else {
+      Logger.trace(
+        {
+          username: requestOptions.options.apiUsername,
+          password: requestOptions.options.apiKey
+        },
+        'Rest Credentials'
+      );
+
+      return {
+        ...requestOptions,
+        auth: {
+          username: requestOptions.options.apiUsername,
+          password: requestOptions.options.apiKey
+        }
+      };
+    }
   };
 
   const checkForStatusError = ({ statusCode, body }, requestOptions) => {

@@ -66,6 +66,24 @@
               <span class="p-value">{{scope.max_severity}}</span>
             </div>
           {{/if}}
+          {{#if scope.confidentiality_requirement}}
+            <div>
+              <span class="p-key">Confidentiality Requirement: </span>
+              <span class="p-value">{{scope.confidentiality_requirement}}</span>
+            </div>
+          {{/if}}
+          {{#if scope.integrity_requirement}}
+            <div>
+              <span class="p-key">Integrity Requirement: </span>
+              <span class="p-value">{{scope.integrity_requirement}}</span>
+            </div>
+          {{/if}}
+          {{#if scope.availability_requirement}}
+            <div>
+              <span class="p-key">Availability Requirement: </span>
+              <span class="p-value">{{scope.availability_requirement}}</span>
+            </div>
+          {{/if}}
         {{else}}
           <a
             href="#"
@@ -94,9 +112,15 @@
             class="dropdown"
             {{on "click" (action "toggleExpand" program.id "cwes" index)}}
           >
-            <span class="text"><span class="desc">CWE ID: </span>{{cwe.id}}</span> {{fa-icon "angle-up"}}
+            <span class="text"><span class="desc">CWE: </span>{{cwe.commonWeaknessEnumeration}}</span> {{fa-icon "angle-up"}}
           </a>
           <div>
+          {{#if cwe.label}}
+            <div>
+              <span class="p-key">CWE ID: </span>
+              <span class="p-value">{{cwe.label}}</span>
+            </div>
+          {{/if}}
             <span class="p-key">More Info: </span>
             <span class="p-value">{{{cwe.link}}} {{fa-icon "external-link-square"}}</span>
           </div>
@@ -117,16 +141,16 @@
               <span class="p-value">{{cwe.highSeverity}}</span>
             </div>
           {{/if}}
-          {{#if cwe.commonWeaknessEnumeration}}
-            <div>
-              <span class="p-key">Common Weakness Enumeration: </span>
-              <span class="p-value">{{cwe.commonWeaknessEnumeration}}</span>
-            </div>
-          {{/if}}
           {{#if cwe.bugExamples}}
             <div>
               <span class="p-key">Bug Examples: </span>
               <span class="p-value">{{cwe.bugExamples}}</span>
+            </div>
+          {{/if}}
+          {{#if cwe.description}}
+            <div>
+              <span class="p-key">Description: </span>
+              <span class="p-value">{{cwe.description}}</span>
             </div>
           {{/if}}
         {{else}}
@@ -135,7 +159,7 @@
             class="dropdown"
             {{on "click" (action "toggleExpand" program.id "cwes" index)}}
           >
-            <span class="text">{{cwe.id}}</span> {{fa-icon "angle-down"}}
+            <span class="text">{{cwe.commonWeaknessEnumeration}}</span> {{fa-icon "angle-down"}}
           </a>
         {{/if}}
       </div>
@@ -345,6 +369,24 @@
                 <span class="p-value">{{report.structured_scope.max_severity}}</span>
               </div>
             {{/if}}
+            {{#if report.structured_scope.confidentiality_requirement}}
+              <div>
+                <span class="p-key">Confidentiality Requirement: </span>
+                <span class="p-value">{{report.structured_scope.confidentiality_requirement}}</span>
+              </div>
+            {{/if}}
+            {{#if report.structured_scope.integrity_requirement}}
+              <div>
+                <span class="p-key">Integrity Requirement: </span>
+                <span class="p-value">{{report.structured_scope.integrity_requirement}}</span>
+              </div>
+            {{/if}}
+            {{#if report.structured_scope.availability_requirement}}
+              <div>
+                <span class="p-key">Availability Requirement: </span>
+                <span class="p-value">{{report.structured_scope.availability_requirement}}</span>
+              </div>
+            {{/if}}
             {{#if report.structured_scope.instruction}}
               <div>
                 <span class="p-key">Scope Instructions: </span>
@@ -511,6 +553,12 @@
             <div>
               <span class="p-key">Hackerone Employee: </span>
               <span class="p-value">{{reporter.hackerone_employee}}</span>
+            </div>
+          {{/if}}
+          {{#if reporter.hackerone_triager}}
+            <div>
+              <span class="p-key">Hackerone Triager: </span>
+              <span class="p-value">{{reporter.hackerone_triager}}</span>
             </div>
           {{/if}}
           {{#if reporter.cleared}}

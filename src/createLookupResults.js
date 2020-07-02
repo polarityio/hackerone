@@ -6,14 +6,15 @@ const createLookupResults = (
   scopesMap,
   cweMap,
   reportsMap,
-  reportersMap
+  reportersMap,
+  programsToSearch
 ) =>
   fp.map((entity) => {
     const scopes = scopesMap[entity.value];
     const cwes = cweMap[entity.value];
     const reports = reportsMap[entity.value];
     const reporters = reportersMap[entity.value];
-    
+
     const hasResults = fp.some(fp.size);
 
     const resultsFound =
@@ -29,7 +30,7 @@ const createLookupResults = (
         : {
             summary: _createSummary(entity, scopes, cwes, reports, reporters),
             details: {
-              programsToSearch: options.programsToSearch,
+              programsToSearch: programsToSearch || options.programsToSearch,
               scopes,
               cwes,
               reports,
@@ -49,14 +50,16 @@ const _createSummary = (entity, scopes, cwes, reports, reporters) => {
   ];
 
   const cwesTags = [
-    ...fp.flow(fp.flatMap(fp.map(fp.getOr('', 'commonWeaknessEnumeration'))), fp.uniq)(cwes)
+    ...fp.flow(
+      fp.flatMap(fp.map(fp.getOr('', 'commonWeaknessEnumeration'))),
+      fp.uniq
+    )(cwes)
   ];
 
   const reportsTags = getReportsTags(reports);
 
   return fp.flow(fp.flatten, fp.compact)([scopesTags, reportsTags, cwesTags]);
 };
-
 
 const getReportsTags = (reports) => {
   const valuedVulnerabilityFound = fp.some(fp.some(fp.get('valuedVulnerability')))(

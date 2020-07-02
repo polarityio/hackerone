@@ -1,6 +1,6 @@
 const moment = require('moment');
 const getProgramInfoQuery = require('../getProgramInfoQuery/index');
-const aggregateEntityProgram = require('./aggregateEntityProgram');
+const aggregateEntityProgram = require('../aggregateEntityProgram');
 const aggregateEntityProgramReports = require('./aggregateEntityProgramReports');
 const { _P } = require('../dataTransformations');
 const NodeCache = require('node-cache');
@@ -8,7 +8,7 @@ const responseCache = new NodeCache({
   stdTTL: 59 * 60 * 12
 });
 
-const getQueryData = (entities, options, requestWithDefaults, Logger) =>
+const getGrapqlQueryData = (entities, options, requestWithDefaults, Logger) =>
   _P.reduce(
     options.programsToSearch,
     async (entityProgramAgg, { id: programName }) => {
@@ -60,7 +60,6 @@ const getQueryData = (entities, options, requestWithDefaults, Logger) =>
     {}
   );
 
-
 const aggregateEntityProgramScopes = aggregateEntityProgram('scopes', (scopes) =>
   scopes.map(({ created_at, ...scope }) => ({
     ...scope,
@@ -77,4 +76,4 @@ const aggregateEntityProgramReporters = aggregateEntityProgram('reporters', (rep
   }))
 );
 
-module.exports = getQueryData;
+module.exports = getGrapqlQueryData;
