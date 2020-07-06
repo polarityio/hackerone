@@ -35,7 +35,8 @@ module.exports = {
     {
       key: 'apiUsername',
       name: 'API Username',
-      description: 'The username associated with your API HackerOne account. (This is not neccisarily the same as the username for your normal HackerOne account)',
+      description:
+        'The username associated with your API HackerOne account. (This is not neccisarily the same as the username for your normal HackerOne account)',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -52,8 +53,9 @@ module.exports = {
     },
     {
       key: 'useGraphql',
-      name: 'Use GraphQL',
-      description: 'Allows you to use your normal login email and password to access the full features of the integration.',
+      name: 'Use Standard Login',
+      description:
+        'Allows you to use your normal dashboard login email and password to access the full features of the integration, including controlling what programs to search with aliasing and access to more data from the system.',
       default: false,
       type: 'boolean',
       userCanEdit: true,
