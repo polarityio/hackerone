@@ -28,9 +28,11 @@ const getGraphqlAuthToken = async (options, defaults, Logger, cb) => {
       },
       json: true
     },
-    (error, { body: { csrf_token }, headers: currentUserHeaders }) => {
+    (error, result) => {
       if (error) cb(error);
 
+      const { body: { csrf_token }, headers: currentUserHeaders } = result;
+      
       requestDefaults(
         {
           method: 'POST',
