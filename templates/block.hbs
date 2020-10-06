@@ -307,7 +307,21 @@
         {{/if}}
       </div>
     {{/each}}
-
+    {{#if (eq (get (get details.reports program.id) "length") 10)}}
+      <div class="p-title">
+        {{#if (eq block.entity.type "custom")}}
+          <a class="p-link" href="https://hackerone.com/bugs?subject={{program.id}}&report_id={{topReportId}}&weaknesses%5B%5D={{cweId}}">
+            ... Find remaining Reports in HackerOne
+            {{fa-icon "external-link-square" class="external-link-icon"}}
+          </a>
+        {{else}}
+          <a class="p-link" href="https://hackerone.com/bugs?subject={{program.id}}&report_id={{topReportId}}&text_query={{block.entity.value}}&sort_type=pg_search_rank&sort_direction=ascending">
+            ... Find remaining Reports in HackerOne
+            {{fa-icon "external-link-square" class="external-link-icon"}}
+          </a>
+        {{/if}}
+      </div>
+    {{/if}}
     {{#if (and (get details.reports program.id) (get details.reporters program.id))}}
       <hr />
     {{/if}}

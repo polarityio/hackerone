@@ -88,13 +88,14 @@ const getReports = async (
       url:
         'https://api.hackerone.com/v1/reports?' +
         `filter[program][]=${programName}&sort=-reports.created_at&` +
-        `filter[keyword]=${entity.value}`,
+        `filter[keyword]=${entity.value}&` +
+        'page[size]=10',
       method: 'GET',
       options
     });
 
     if (!body) return { reports: [], reporters: [] };
-
+    
     reports =
       (body.data &&
         body.data.length &&
@@ -107,7 +108,8 @@ const getReports = async (
           url:
             'https://api.hackerone.com/v1/reports?' +
             `filter[program][]=${programName}&sort=-reports.created_at&` +
-            `filter[weakness_id][]=${weaknessId}`,
+            `filter[weakness_id][]=${weaknessId}&` +
+            'page[size]=10',
           method: 'GET',
           options
         })
@@ -177,6 +179,7 @@ const formatReport = (getValuedVulnerabilityCWE) => ({
   }
 }) => {
   const reporterData = fp.getOr({}, 'data.attributes')(reporter);
+  const weaknessId = fp.getOr({}, 'data.id')(weakness);
   const weaknessData = fp.getOr({}, 'data.attributes')(weakness);
   const structuredScope = fp.getOr({}, 'data.attributes')(structured_scope);
   const severityData = fp.getOr({}, 'data.attributes')(severity);
@@ -213,6 +216,7 @@ const formatReport = (getValuedVulnerabilityCWE) => ({
         reporterData.profile_picture['110x110']
     },
     weakness: {
+      id: weaknessId,
       ...weaknessData,
       valuedVulnerability: {
         ...valuedVulnerability,
