@@ -118,7 +118,7 @@ const getReports = async (
       fp.map(fp.get('body.data')),
       fp.compact,
       fp.flatten,
-      fp.uniqBy(['id', 'title'])
+      fp.uniqBy('id')
     )(weaknessReportsRequestResults);
     
     reports =
