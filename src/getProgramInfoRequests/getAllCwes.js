@@ -11,6 +11,7 @@ const getAllCwes = async (
 ) => {
   const policy = fp.get('attributes.policy')(program);
   const programName = fp.get('attributes.handle')(program);
+
   const valuedVulnerabilities = await getValuedVulnerabilities(
     entities,
     programName,
@@ -18,6 +19,7 @@ const getAllCwes = async (
     responseCache,
     Logger
   );
+
   const allCwes = await getCwesRequest(
     program.id,
     programName,
@@ -83,12 +85,7 @@ const addCwesResponseToCache = async (
   responseCache,
   Logger
 ) => {
-  const { body } = await requestWithDefaults({
-    url: `https://api.hackerone.com/v1/programs/${programId}/weaknesses`,
-    method: 'GET',
-    options
-  });
-  const cwes = fp.get('data')(body);
+  const cwes = await getAllWeaknesses(programId, options, requestWithDefaults, Logger);
   if (!cwes || !cwes.length) return;
 
   const valuedVulnerabilities = responseCache.get(programName).valuedVulnerabilities;
@@ -136,6 +133,28 @@ const formatCwesResults = (cweEntityValues, responseCacheValues) => {
   }, {})(cweEntityValues);
 
   return formattedCweResults;
+};
+
+const getAllWeaknesses = async (programId, options, requestWithDefaults, Logger, pageNumber=1, previousCWEs=[]) => {
+  const { body } = await requestWithDefaults({
+    url:
+      `https://api.hackerone.com/v1/programs/${programId}/weaknesses?` +
+      `page[size]=100&page[number]=${pageNumber}`,
+    method: 'GET',
+    options
+  });
+  const cwes = fp.get('data')(body);
+
+  return cwes.length < 100
+    ? previousCWEs.concat(cwes)
+    : await getAllWeaknesses(
+        programId,
+        options,
+        requestWithDefaults,
+        Logger,
+        pageNumber + 1,
+        previousCWEs.concat(cwes)
+      );
 };
 
 module.exports = getAllCwes;

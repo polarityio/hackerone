@@ -43,12 +43,8 @@ const addScopesResponseToCache = async (
   responseCache,
   Logger
 ) => {
-  const { body } = await requestWithDefaults({
-    url: `https://api.hackerone.com/v1/programs/${programId}/structured_scopes`,
-    method: 'GET',
-    options
-  });
-  const scopes = fp.get('data')(body);
+  const scopes = await getAllScopes(programId, options, requestWithDefaults, Logger);
+
   if (!scopes || !scopes.length) return 'No Results';
 
   const fromattedScopes = fp.map(({ attributes }) => ({
@@ -77,5 +73,34 @@ const formatScopesResults = (entityValues, programName, responseCache) =>
       })
     };
   }, {});
+
+const getAllScopes = async (
+  programId,
+  options,
+  requestWithDefaults,
+  Logger,
+  pageNumber = 1,
+  previousScopes = []
+) => {
+  const { body } = await requestWithDefaults({
+    url:
+      `https://api.hackerone.com/v1/programs/${programId}/structured_scopes?` +
+      `page[size]=100&page[number]=${pageNumber}`,
+    method: 'GET',
+    options
+  });
+  const scopes = fp.get('data')(body);
+
+  return scopes.length < 100
+    ? previousScopes.concat(scopes)
+    : await getAllScopes(
+        programId,
+        options,
+        requestWithDefaults,
+        Logger,
+        pageNumber + 1,
+        previousScopes.concat(scopes)
+      );
+};
 
 module.exports = getScopesRequest;
