@@ -22,6 +22,7 @@ const GET_ALL_REPORTS_QUERY = `
       title
       vulnerability_information
       jira_escalation_state
+      reference
       hacker_published
       state
       substate

@@ -88,13 +88,14 @@ const getReports = async (
       url:
         'https://api.hackerone.com/v1/reports?' +
         `filter[program][]=${programName}&sort=-reports.created_at&` +
-        `filter[keyword]=${entity.value}`,
+        `filter[keyword]=${entity.value}&` +
+        'page[size]=10',
       method: 'GET',
       options
     });
 
     if (!body) return { reports: [], reporters: [] };
-
+    
     reports =
       (body.data &&
         body.data.length &&
@@ -107,7 +108,8 @@ const getReports = async (
           url:
             'https://api.hackerone.com/v1/reports?' +
             `filter[program][]=${programName}&sort=-reports.created_at&` +
-            `filter[weakness_id][]=${weaknessId}`,
+            `filter[weakness_id][]=${weaknessId}&` +
+            'page[size]=10',
           method: 'GET',
           options
         })
@@ -118,9 +120,9 @@ const getReports = async (
       fp.map(fp.get('body.data')),
       fp.compact,
       fp.flatten,
-      fp.uniqBy(['id', 'title'])
+      fp.uniqBy('id')
     )(weaknessReportsRequestResults);
-
+    
     reports =
       (weaknessReports &&
         weaknessReports.length &&
@@ -138,11 +140,27 @@ const getReports = async (
   };
 };
 
+
+const getBounty = fp.flow(
+  fp.getOr([], 'data'),
+  fp.flatMap(
+    fp.flow(
+      fp.get('attributes'),
+      fp.pick(['amount', 'bonus_amount']),
+      fp.values,
+      fp.map(fp.toNumber),
+      fp.compact
+    )
+  ),
+  fp.sum
+);
+
 const formatReport = (getValuedVulnerabilityCWE) => ({
   id,
   attributes: {
     title,
     vulnerability_information,
+    issue_tracker_reference_id,
     state,
     created_at,
     closed_at,
@@ -150,23 +168,37 @@ const formatReport = (getValuedVulnerabilityCWE) => ({
     latest_activity_at,
     latest_public_activity_at
   },
-  relationships: { reporter, custom_field_values, weakness, structured_scope, severity }
+  relationships: {
+    reporter,
+    custom_field_values,
+    weakness,
+    structured_scope,
+    severity,
+    assignee,
+    bounties
+  }
 }) => {
   const reporterData = fp.getOr({}, 'data.attributes')(reporter);
+  const weaknessId = fp.getOr({}, 'data.id')(weakness);
   const weaknessData = fp.getOr({}, 'data.attributes')(weakness);
   const structuredScope = fp.getOr({}, 'data.attributes')(structured_scope);
   const severityData = fp.getOr({}, 'data.attributes')(severity);
   const customNodes = fp.getOr({}, 'data')(custom_field_values);
   const valuedVulnerability = getValuedVulnerabilityCWE(weaknessData);
+  const assignedTo = fp.get('data.attributes.username')(assignee);
+  const bounty = getBounty(bounties);
 
   return {
     id,
     title,
     state,
+    assignedTo,
+    bounty,
     vulnerability_information:
       vulnerability_information &&
       vulnerability_information.replace(/(\r\n|\n|\r)/gm, '<br/>'),
-    created_at: created_at && moment(created_at).format('MMM D, YY - h:mm A'),
+    reference: issue_tracker_reference_id,
+    created_at: created_at && moment(created_at).format('MMM D, YY'),
     closed_at: closed_at && moment(closed_at).format('MMM D, YY - h:mm A'),
     url: `https://hackerone.com/reports/${id}`,
     bug_reporter_agreed_on_going_public_at:
@@ -184,6 +216,7 @@ const formatReport = (getValuedVulnerabilityCWE) => ({
         reporterData.profile_picture['110x110']
     },
     weakness: {
+      id: weaknessId,
       ...weaknessData,
       valuedVulnerability: {
         ...valuedVulnerability,
@@ -191,7 +224,6 @@ const formatReport = (getValuedVulnerabilityCWE) => ({
       }
     },
     custom_field_values: { nodes: customNodes },
-
     structured_scope: {
       ...structuredScope,
       created_at:
