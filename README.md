@@ -10,7 +10,7 @@ Polarity's HackerOne integration allows automated queries against HackerOne's AP
 
 
 
-To learn more about HackerOne, visit the [official website](https://register.paloaltonetworks.com/introducingcortexxsoar).
+To learn more about HackerOne, visit the [official website](https://hackerone.com).
 
 
 ## HackerOne Integration Options
