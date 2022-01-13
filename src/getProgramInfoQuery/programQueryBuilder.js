@@ -18,12 +18,14 @@ const programQueryBuilder = (entitiesWithIds, programName, responseCache) =>
           team(handle: $handle) {
             id
             handle
-            ${!responseCache.get(programName) ? 'policy' : ''}
             ${scopeStructureQueries}
           }
           ${!responseCache.get(programName) ? GET_ALL_REPORTS_QUERY : ''}
         }
       `
+      //Used to get valuedVulnerabilities, which is not currently being used
+      //handle
+      //${!responseCache.get(programName) ? 'policy' : ''}
     )
   )(entitiesWithIds);
 
