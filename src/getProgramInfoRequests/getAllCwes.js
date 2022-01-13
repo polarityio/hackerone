@@ -9,16 +9,16 @@ const getAllCwes = async (
   requestWithDefaults,
   Logger
 ) => {
-  const policy = fp.get('attributes.policy')(program);
+  // const policy = fp.get('attributes.policy')(program);
   const programName = fp.get('attributes.handle')(program);
 
-  const valuedVulnerabilities = await getValuedVulnerabilities(
-    entities,
-    programName,
-    policy && { data: { team: { policy } } },
-    responseCache,
-    Logger
-  );
+  // const valuedVulnerabilities = await getValuedVulnerabilities(
+  //   entities,
+  //   programName,
+  //   policy && { data: { team: { policy } } },
+  //   responseCache,
+  //   Logger
+  // );
 
   const allCwes = await getCwesRequest(
     program.id,
