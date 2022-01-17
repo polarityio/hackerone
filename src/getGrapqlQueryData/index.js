@@ -63,7 +63,7 @@ const getGrapqlQueryData = (entities, options, requestWithDefaults, Logger) =>
 const aggregateEntityProgramScopes = aggregateEntityProgram('scopes', (scopes) =>
   scopes.map(({ created_at, ...scope }) => ({
     ...scope,
-    created_at: moment(created_at).format('MMM D, YY - h:mm A')
+    created_at: created_at && moment(created_at).format('MMM D, YY - h:mm A')
   }))
 );
 

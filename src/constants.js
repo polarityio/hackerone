@@ -74,15 +74,9 @@ const GET_ALL_REPORTS_QUERY = `
       }
       summaries {
         content
-        created_at
         id
-        updated_at
-        user {
-          name
-          username
-        }
       }
-      structured_scope {  
+      structured_scope {
         id
         asset_identifier
         asset_type

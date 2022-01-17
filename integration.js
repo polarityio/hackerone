@@ -26,7 +26,8 @@ const doLookup = async (entities, _options, cb) => {
   try {
     lookupResults = await getLookupResults(entities, options, requestWithDefaults, Logger);
   } catch (error) {
-    Logger.error({ error }, 'Get Lookup Results Failed');
+    const err = JSON.parse(JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    Logger.error({ error, err }, 'Get Lookup Results Failed');
     return cb(handleError(error));
   }
 

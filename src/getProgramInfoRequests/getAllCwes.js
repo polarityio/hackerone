@@ -88,7 +88,10 @@ const addCwesResponseToCache = async (
   const cwes = await getAllWeaknesses(programId, options, requestWithDefaults, Logger);
   if (!cwes || !cwes.length) return;
 
-  const valuedVulnerabilities = responseCache.get(programName).valuedVulnerabilities;
+  const valuedVulnerabilities = fp.get(
+    'valuedVulnerabilities',
+    responseCache.get(programName)
+  );
 
   const fromattedCWEs = cwes.map(({ id, attributes }) => ({
     id,
@@ -113,13 +116,13 @@ const addCwesResponseToCache = async (
 };
 
 const formatCwesResults = (cweEntityValues, responseCacheValues) => {
-  const cweResponse = responseCacheValues.cwes;
-  const valuedVulnerabilities = responseCacheValues.valuedVulnerabilities;
+  const cweResponse = fp.get('cwes', responseCacheValues);
+  const valuedVulnerabilities = fp.get('valuedVulnerabilities', responseCacheValues);
   const allCwes = cweResponse.concat(valuedVulnerabilities);
 
   const formattedCweResults = fp.reduce((agg, cweEntityValue) => {
     const cwesForThisEntity = fp.filter(
-      (cwe) => cwe.label.toLowerCase() === cweEntityValue.toLowerCase(),
+      fp.flow(fp.get('label'), fp.toLower, fp.eq(fp.toLower(cweEntityValue))),
       allCwes
     );
 
