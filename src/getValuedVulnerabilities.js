@@ -5,7 +5,7 @@ const getValuedVulnerabilities = (entities, programName, body, responseCache, Lo
   if (!programName || !body) return {};
 
   const cachedProgramData = responseCache.get(programName);
-  if (!cachedProgramData || !cachedProgramData.valuedVulnerabilities) {
+  if (!cachedProgramData || !fp.get('valuedVulnerabilities', cachedProgramData)) {
     const error = addValuedVulnerabilityResponseToCache(
       body,
       programName,
@@ -92,12 +92,16 @@ const formatValuedVulnerabilityTable = (
   responseCache,
   Logger
 ) =>
-  responseCache
-    .get(programName)
-    .valuedVulnerabilities.reduce((agg, valuedVulnerability) => {
+  fp.flow(
+    fp.getOr([], 'valuedVulnerabilities'),
+    fp.reduce((agg, valuedVulnerability) => {
       const entityValueForValuedVulnerability = fp.find(
         (entityValue) =>
-          valuedVulnerability.label.toLowerCase().includes(entityValue.toLowerCase()),
+          fp.flow(
+            fp.get('label'),
+            fp.toLower,
+            fp.includes(fp.toLower(entityValue))
+          )(valuedVulnerability),
         cweEntityValues
       );
       return {
@@ -109,6 +113,7 @@ const formatValuedVulnerabilityTable = (
           ]
         })
       };
-    }, {});
+    }, {})
+  )(responseCache.get(programName));
 
 module.exports = getValuedVulnerabilities;

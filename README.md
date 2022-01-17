@@ -22,7 +22,7 @@ The username associated with your API HackerOne account. (This is not neccisaril
 The your API Key for HackerOne.
 
 ### Use Standard Login
-Allows you to use your normal dashboard login email and password to access the full features of the integration, including controlling what programs to search with aliasing and access to more data from the system.
+Allows you to use your normal dashboard login email and password to access the integration, including controlling what programs to search with aliasing.
 
 ### Email
 The email associated with your HackerOne account
