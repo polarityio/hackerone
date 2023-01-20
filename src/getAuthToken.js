@@ -1,6 +1,6 @@
 const fp = require('lodash/fp');
 const NodeCache = require('node-cache');
-const request = require('request');
+const request = require('postman-request');
 
 const cache = new NodeCache({
   stdTTL: 59 * 60

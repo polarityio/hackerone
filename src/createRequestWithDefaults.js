@@ -1,5 +1,5 @@
 const fs = require('fs');
-const request = require('request');
+const request = require('postman-request');
 const { promisify } = require('util');
 const fp = require('lodash/fp');
 const config = require('../config/config');

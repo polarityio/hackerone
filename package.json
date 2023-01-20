@@ -7,10 +7,10 @@
   "author": "Polarity",
   "dependencies": {
     "aigle": "^1.14.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "markdown-tables-to-json": "^0.1.4",
-    "moment": "^2.26.0",
+    "moment": "^2.29.4",
     "node-cache": "^4.2.0",
-    "request": "^2.88.2"
+    "postman-request": "^2.88.1-postman.31"
   }
 }
