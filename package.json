@@ -7,7 +7,7 @@
   "author": "Polarity",
   "dependencies": {
     "aigle": "^1.14.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "markdown-tables-to-json": "^0.1.4",
     "moment": "^2.29.4",
     "node-cache": "^4.2.0",
