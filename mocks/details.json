@@ -1,0 +1,229 @@
+{
+  "programsToSearch": [
+    {
+      "id": "security-team",
+      "alias": "Security Team Program"
+    },
+    {
+      "id": "bug-bounty-program",
+      "alias": "Bug Bounty"
+    }
+  ],
+  "scopes": {
+    "example.com": [
+      {
+        "asset_identifier": "*.example.com",
+        "asset_type": "URL",
+        "eligible_for_bounty": true,
+        "eligible_for_submission": true,
+        "max_severity": "critical",
+        "instruction": "All subdomains are in scope"
+      }
+    ]
+  },
+  "reports": {
+    "security-team": [
+      {
+        "id": "1234567",
+        "title": "SQL Injection in User Authentication",
+        "state": "triaged",
+        "assignedTo": "security-lead",
+        "bounty": 5000,
+        "vulnerability_information": "A SQL injection vulnerability was discovered in the login endpoint...",
+        "reference": "SEC-2024-001",
+        "created_at": "Jan 15, 24",
+        "closed_at": null,
+        "url": "https://hackerone.com/reports/1234567",
+        "bug_reporter_agreed_on_going_public_at": null,
+        "latest_activity_at": "Jan 16, 24 - 3:45 PM",
+        "latest_public_activity_at": null,
+        "reporter": {
+          "id": "98765",
+          "username": "security_researcher",
+          "name": "Alex Chen",
+          "reputation": 2500,
+          "profile_picture": "https://profile.hackerone-user-content.com/variants/abc123/110x110"
+        },
+        "severity": {
+          "rating": "critical",
+          "score": 9.8,
+          "attack_complexity": "low",
+          "attack_vector": "network",
+          "confidentiality_impact": "high",
+          "integrity_impact": "high",
+          "availability_impact": "high"
+        },
+        "weakness": {
+          "id": "70",
+          "name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+          "external_id": "CWE-89",
+          "valuedVulnerability": {
+            "hasValue": true,
+            "bounty": 5000
+          }
+        },
+        "structured_scope": {
+          "id": "scope-123",
+          "asset_identifier": "api.example.com",
+          "asset_type": "URL",
+          "eligible_for_bounty": true,
+          "created_at": "Dec 1, 23 - 10:00 AM"
+        },
+        "custom_field_values": {
+          "nodes": [
+            {
+              "field_name": "Business Impact",
+              "value": "Customer data exposure"
+            }
+          ]
+        }
+      },
+      {
+        "id": "1234568",
+        "title": "Cross-Site Scripting (XSS) in Comment Section",
+        "state": "resolved",
+        "assignedTo": "frontend-security",
+        "bounty": 1500,
+        "vulnerability_information": "Reflected XSS found in the comment rendering...",
+        "reference": "SEC-2024-002",
+        "created_at": "Jan 10, 24",
+        "closed_at": "Jan 14, 24 - 2:30 PM",
+        "url": "https://hackerone.com/reports/1234568",
+        "bug_reporter_agreed_on_going_public_at": "Feb 14, 24 - 2:30 PM",
+        "latest_activity_at": "Jan 14, 24 - 2:30 PM",
+        "latest_public_activity_at": "Jan 14, 24 - 2:30 PM",
+        "reporter": {
+          "id": "98766",
+          "username": "xss_hunter",
+          "name": "Sarah Johnson",
+          "reputation": 1800,
+          "profile_picture": "https://profile.hackerone-user-content.com/variants/def456/110x110"
+        },
+        "severity": {
+          "rating": "high",
+          "score": 7.5,
+          "attack_complexity": "low",
+          "attack_vector": "network",
+          "confidentiality_impact": "high",
+          "integrity_impact": "low",
+          "availability_impact": "none"
+        },
+        "weakness": {
+          "id": "80",
+          "name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+          "external_id": "CWE-79",
+          "valuedVulnerability": {
+            "hasValue": true,
+            "bounty": 1500
+          }
+        },
+        "structured_scope": {
+          "id": "scope-124",
+          "asset_identifier": "www.example.com",
+          "asset_type": "URL",
+          "eligible_for_bounty": true,
+          "created_at": "Dec 1, 23 - 10:00 AM"
+        },
+        "custom_field_values": {
+          "nodes": []
+        }
+      }
+    ],
+    "bug-bounty-program": [
+      {
+        "id": "7891011",
+        "title": "Server-Side Request Forgery (SSRF) in Image Upload",
+        "state": "new",
+        "assignedTo": "Pending Final Bounty",
+        "bounty": 0,
+        "vulnerability_information": "SSRF vulnerability allows internal network access...",
+        "reference": null,
+        "created_at": "Jan 16, 24",
+        "closed_at": null,
+        "url": "https://hackerone.com/reports/7891011",
+        "bug_reporter_agreed_on_going_public_at": null,
+        "latest_activity_at": "Jan 16, 24 - 9:15 AM",
+        "latest_public_activity_at": null,
+        "reporter": {
+          "id": "55555",
+          "username": "cloud_pentester",
+          "name": "Marcus Lee",
+          "reputation": 3200,
+          "profile_picture": "https://profile.hackerone-user-content.com/variants/ghi789/110x110"
+        },
+        "severity": {
+          "rating": "medium",
+          "score": 6.5,
+          "attack_complexity": "high",
+          "attack_vector": "network",
+          "confidentiality_impact": "high",
+          "integrity_impact": "none",
+          "availability_impact": "none"
+        },
+        "weakness": {
+          "id": "918",
+          "name": "Server-Side Request Forgery (SSRF)",
+          "external_id": "CWE-918",
+          "valuedVulnerability": {
+            "hasValue": false
+          }
+        },
+        "structured_scope": {
+          "id": "scope-125",
+          "asset_identifier": "upload.example.com",
+          "asset_type": "URL",
+          "eligible_for_bounty": true,
+          "created_at": "Dec 1, 23 - 10:00 AM"
+        },
+        "custom_field_values": {
+          "nodes": [
+            {
+              "field_name": "Attack Scenario",
+              "value": "Internal port scanning possible"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "cwes": {
+    "CWE-89": [
+      {
+        "id": "70",
+        "label": "CWE-89",
+        "link": "<a href=\"http://cwe.mitre.org/data/definitions/89.html\">CWE-89</a>",
+        "commonWeaknessEnumeration": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+        "description": "The software constructs all or part of an SQL command using externally-influenced input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could modify the intended SQL command when it is sent to a downstream component.",
+        "valuedVulnerability": true
+      }
+    ],
+    "CWE-79": [
+      {
+        "id": "80",
+        "label": "CWE-79",
+        "link": "<a href=\"http://cwe.mitre.org/data/definitions/79.html\">CWE-79</a>",
+        "commonWeaknessEnumeration": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+        "description": "The software does not neutralize or incorrectly neutralizes user-controllable input before it is placed in output that is used as a web page that is served to other users.",
+        "valuedVulnerability": true
+      }
+    ]
+  },
+  "reporters": {
+    "example.com": [
+      {
+        "id": "98765",
+        "username": "security_researcher",
+        "name": "Alex Chen",
+        "reputation": 2500,
+        "profile_picture": "https://profile.hackerone-user-content.com/variants/abc123/110x110"
+      },
+      {
+        "id": "98766",
+        "username": "xss_hunter",
+        "name": "Sarah Johnson",
+        "reputation": 1800,
+        "profile_picture": "https://profile.hackerone-user-content.com/variants/def456/110x110"
+      }
+    ]
+  }
+}

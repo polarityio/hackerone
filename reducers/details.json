@@ -1,0 +1,57 @@
+{
+  "root": {
+    "path": "",
+    "on_null": "return_empty"
+  },
+  "pipeline": [
+    {
+      "op": "copy",
+      "from": "reports",
+      "to": "reduced_results.reports_data"
+    },
+    {
+      "op": "copy",
+      "from": "cwes",
+      "to": "reduced_results.cwes_data"
+    },
+    {
+      "op": "copy",
+      "from": "programsToSearch",
+      "to": "reduced_results.programs_to_search"
+    },
+    {
+      "op": "drop",
+      "paths": [
+        "reduced_results.reports_data.*[].vulnerability_information",
+        "reduced_results.reports_data.*[].reference",
+        "reduced_results.reports_data.*[].created_at",
+        "reduced_results.reports_data.*[].closed_at",
+        "reduced_results.reports_data.*[].url",
+        "reduced_results.reports_data.*[].bug_reporter_agreed_on_going_public_at",
+        "reduced_results.reports_data.*[].latest_activity_at",
+        "reduced_results.reports_data.*[].latest_public_activity_at",
+        "reduced_results.reports_data.*[].reporter",
+        "reduced_results.reports_data.*[].weakness",
+        "reduced_results.reports_data.*[].custom_field_values",
+        "reduced_results.reports_data.*[].structured_scope",
+        "reduced_results.reports_data.*[].state",
+        "reduced_results.reports_data.*[].assignedTo",
+        "reduced_results.reports_data.*[].bounty",
+        "reduced_results.reports_data.*[].id",
+        "reduced_results.cwes_data.*[].id",
+        "reduced_results.cwes_data.*[].label",
+        "reduced_results.cwes_data.*[].link",
+        "reduced_results.cwes_data.*[].description",
+        "reduced_results.cwes_data.*[].valuedVulnerability"
+      ]
+    },
+    {
+      "op": "prune",
+      "strategy": "empty_values",
+      "target": "reduced_results"
+    }
+  ],
+  "output": {
+    "result": "$working.reduced_results"
+  }
+}
